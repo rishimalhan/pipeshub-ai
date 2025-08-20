@@ -1,12 +1,16 @@
 // Memoized Menu Button Component with Fixed Positioning
-import React, { memo, useState, useCallback } from 'react';
+import type { Theme} from '@mui/material/styles';
+
 import { Icon } from '@iconify/react';
-import { Theme, alpha } from '@mui/material/styles';
-import { Popover, ClickAwayListener, MenuList, MenuItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
-import moreVertIcon from '@iconify-icons/mdi/dots-vertical';
 import editIcon from '@iconify-icons/mdi/pencil-outline';
+import React, { memo, useState, useCallback } from 'react';
 import deleteIcon from '@iconify-icons/mdi/delete-outline';
-import { KnowledgeBase } from '../types/kb';
+import moreVertIcon from '@iconify-icons/mdi/dots-vertical';
+
+import { alpha } from '@mui/material/styles';
+import { Popover, MenuList, MenuItem, IconButton, ListItemIcon, ListItemText, ClickAwayListener } from '@mui/material';
+
+import type { KnowledgeBase } from '../types/kb';
 
 
 // Styled components

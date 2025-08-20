@@ -42,6 +42,7 @@ const GoogleWorkspaceIndividualPage = lazy(
 );
 const AtlassianPage = lazy(() => import('src/pages/dashboard/account/connectors/atlassian-config'));
 
+
 const SamlSsoConfigPage = lazy(() => import('src/pages/dashboard/account/saml-sso-config'));
 
 // knowledge-base
@@ -329,6 +330,7 @@ export const dashboardRoutes = [
                         path: 'atlassian',
                         element: <BusinessAdminOnlyRoute component={AtlassianPage} />,
                       },
+
                     ],
                   },
                   {
@@ -431,6 +433,7 @@ export const dashboardRoutes = [
                           <IndividualOnlyRoute component={GoogleWorkspaceIndividualPage} />
                         ),
                       },
+
                     ],
                   },
                   {

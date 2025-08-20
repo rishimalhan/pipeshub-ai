@@ -48,7 +48,7 @@ export class DynamicConfigFactory {
 
     fields.forEach((field: FieldTemplate) => {
       // Use custom default value if provided
-      const customDefaultValue = (field as any).customDefaultValue;
+      const {customDefaultValue} = (field as any);
       if (customDefaultValue !== undefined) {
         defaultValues[field.name] = customDefaultValue;
       } else if (field.type === 'number') {

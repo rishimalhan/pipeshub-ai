@@ -9,25 +9,24 @@ import upIcon from '@iconify-icons/mdi/chevron-up';
 import magnifyIcon from '@iconify-icons/mdi/magnify';
 import leftIcon from '@iconify-icons/mdi/chevron-left';
 import downIcon from '@iconify-icons/mdi/chevron-down';
+import databaseIcon from '@iconify-icons/mdi/database';
 import rightIcon from '@iconify-icons/mdi/chevron-right';
-import addIcon from '@iconify-icons/mdi/plus';
-import React, { useRef, useState, useEffect, useCallback } from 'react';
 import viewModuleIcon from '@iconify-icons/mdi/view-module';
 import filterMenuIcon from '@iconify-icons/mdi/filter-menu';
 import googleDriveIcon from '@iconify-icons/mdi/google-drive';
 import cloudUploadIcon from '@iconify-icons/mdi/cloud-upload';
 import filterRemoveIcon from '@iconify-icons/mdi/filter-remove';
+import bookOpenIcon from '@iconify-icons/mdi/book-open-outline';
 import officeBuildingIcon from '@iconify-icons/mdi/office-building';
 import formatListIcon from '@iconify-icons/mdi/format-list-bulleted';
 import closeCircleIcon from '@iconify-icons/mdi/close-circle-outline';
-import databaseIcon from '@iconify-icons/mdi/database';
-import bookOpenIcon from '@iconify-icons/mdi/book-open-outline';
-import infiniteIcon from '@iconify-icons/mdi/infinity';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 
 import { alpha, styled, useTheme } from '@mui/material/styles';
 import {
   Box,
   Chip,
+  List,
   Badge,
   Paper,
   Drawer,
@@ -35,31 +34,26 @@ import {
   Tooltip,
   Checkbox,
   Collapse,
+  ListItem,
+  Skeleton,
   FormGroup,
   TextField,
   Typography,
   IconButton,
+  ListItemText,
+  ListItemIcon,
   InputAdornment,
   FormControlLabel,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Pagination,
-  Skeleton,
-  Divider,
-  ToggleButton,
-  ToggleButtonGroup,
 } from '@mui/material';
 
 import { KnowledgeBaseAPI } from './services/api';
 
 import type { Modules } from './types/modules';
+import type { KnowledgeBase } from './types/kb';
 import type { Departments } from './types/departments';
 import type { RecordCategories } from './types/record-categories';
 import type { Filters, KnowledgeSearchSideBarProps } from './types/knowledge-base';
-import type { KnowledgeBase } from './types/kb';
 
 // Connector definitions for app sources
 const apps = [

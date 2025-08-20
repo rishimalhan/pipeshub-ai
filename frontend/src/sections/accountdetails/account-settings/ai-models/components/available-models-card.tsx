@@ -1,24 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import addIcon from '@iconify-icons/mdi/plus';
+import React, { useMemo, useState } from 'react';
+import robotIcon from '@iconify-icons/mdi/robot';
+import clearIcon from '@iconify-icons/mdi/close';
+import searchIcon from '@iconify-icons/mdi/magnify';
+
 import {
   Box,
   Grid,
   Card,
-  CardContent,
+  Chip,
+  alpha,
   Avatar,
   Button,
-  Typography,
-  alpha,
   useTheme,
-  Chip,
   TextField,
+  Typography,
+  CardContent,
   InputAdornment,
 } from '@mui/material';
-import addIcon from '@iconify-icons/mdi/plus';
-import robotIcon from '@iconify-icons/mdi/robot';
-import searchIcon from '@iconify-icons/mdi/magnify';
-import clearIcon from '@iconify-icons/mdi/close';
+
 import { Iconify } from 'src/components/iconify';
-import { AVAILABLE_MODEL_PROVIDERS, ModelProvider, ModelType } from '../types';
+
+import { AVAILABLE_MODEL_PROVIDERS } from '../types';
+
+import type { ModelType, ModelProvider } from '../types';
 
 interface ProviderCardsProps {
   onProviderSelect: (provider: ModelProvider, modelType?: ModelType) => void;

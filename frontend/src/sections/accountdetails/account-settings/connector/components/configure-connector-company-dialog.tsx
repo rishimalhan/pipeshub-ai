@@ -15,10 +15,11 @@ import {
 
 import { Iconify } from 'src/components/iconify';
 
+import AtlassianConfigForm from './atlassian-config-form';
 import GoogleWorkSpaceConfigForm from './google-workspace-config-company-form';
 
+import type { AtlassianConfigFormRef } from './atlassian-config-form';
 import type { GoogleWorkspaceConfigFormRef } from './google-workspace-config-company-form';
-import AtlassianConfigForm, { AtlassianConfigFormRef } from './atlassian-config-form';
 
 // Method configurations
 interface ConnectorConfigType {

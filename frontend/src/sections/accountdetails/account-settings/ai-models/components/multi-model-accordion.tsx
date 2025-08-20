@@ -1,31 +1,34 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import robotIcon from '@iconify-icons/mdi/robot';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
   Box,
-  alpha,
-  Button,
-  IconButton,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Chip,
+  Card,
+  alpha,
+  Stack,
+  Alert,
+  Button,
   Tooltip,
+  Divider,
   Snackbar,
   useTheme,
-  Card,
+  Accordion,
+  IconButton,
+  Typography,
   CardContent,
-  Stack,
-  Divider,
-  Alert,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
-import robotIcon from '@iconify-icons/mdi/robot';
-import { ModelProvider, AVAILABLE_MODEL_PROVIDERS, ConfiguredModel } from '../types';
+
 import ProviderCards from './available-models-card';
+import { AVAILABLE_MODEL_PROVIDERS } from '../types';
 import ModelConfigurationDialog from './configure-model-dialog';
-import { getAllModels, deleteModel, setDefaultModel } from '../services/universal-config';
+import { deleteModel, getAllModels, setDefaultModel } from '../services/universal-config';
+
+import type { ModelProvider, ConfiguredModel } from '../types';
 
 
 interface MultiModelAccordionProps {

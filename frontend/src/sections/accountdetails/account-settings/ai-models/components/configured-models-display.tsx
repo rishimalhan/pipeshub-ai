@@ -3,46 +3,50 @@
 // ===================================================================
 
 import React, { useState } from 'react';
+import starIcon from '@iconify-icons/mdi/star';
+import robotIcon from '@iconify-icons/mdi/robot';
+import closeIcon from '@iconify-icons/mdi/close';
+import settingsIcon from '@iconify-icons/mdi/cog';
+import deleteIcon from '@iconify-icons/mdi/delete';
+import pencilIcon from '@iconify-icons/mdi/pencil';
+import magnifyIcon from '@iconify-icons/mdi/magnify';
+import generativeIcon from '@iconify-icons/mdi/brain';   
+import arrowDownIcon from '@iconify-icons/mdi/chevron-down';
+import embeddingIcon from '@iconify-icons/mdi/vector-polygon';
+import moreVerticalIcon from '@iconify-icons/mdi/dots-vertical';
+
 import {
   Box,
   Card,
-  CardContent,
-  Typography,
   Chip,
-  IconButton,
-  Button,
-  Stack,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  alpha,
-  useTheme,
-  Tooltip,
   Menu,
+  Stack,
+  alpha,
+  Alert,
+  Button,
+  Dialog,
+  Divider,
+  useTheme,
   MenuItem,
+  Accordion,
+  Typography,
+  IconButton,
+  CardContent,
+  DialogTitle,
   ListItemIcon,
   ListItemText,
-  Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
+  AccordionSummary,
+  AccordionDetails,
   CircularProgress,
-  Divider,
-  Alert,
 } from '@mui/material';
+
 import { Iconify } from 'src/components/iconify';
-import robotIcon from '@iconify-icons/mdi/robot';
-import generativeIcon from '@iconify-icons/mdi/brain';
-import embeddingIcon from '@iconify-icons/mdi/vector-polygon';
-import magnifyIcon from '@iconify-icons/mdi/magnify';
-import deleteIcon from '@iconify-icons/mdi/delete';
-import starIcon from '@iconify-icons/mdi/star';   
-import pencilIcon from '@iconify-icons/mdi/pencil';
-import settingsIcon from '@iconify-icons/mdi/cog';
-import arrowDownIcon from '@iconify-icons/mdi/chevron-down';
-import moreVerticalIcon from '@iconify-icons/mdi/dots-vertical';
-import closeIcon from '@iconify-icons/mdi/close';
-import { AVAILABLE_MODEL_PROVIDERS, ConfiguredModel, ModelType } from '../types';
+
+import { AVAILABLE_MODEL_PROVIDERS } from '../types';
+
+import type { ModelType, ConfiguredModel } from '../types';
 
 interface ConfiguredModelsDisplayProps {
   models: { [key: string]: ConfiguredModel[] };

@@ -1,53 +1,51 @@
+import type { Agent } from 'src/types/agent';
 import type {
   Message,
   Citation,
-  Metadata,
   Conversation,
   CustomCitation,
+  CompletionData,
   FormattedMessage,
   ExpandedCitationsState,
-  CompletionData,
 } from 'src/types/chat-bot';
 
 import { Icon } from '@iconify/react';
 import menuIcon from '@iconify-icons/mdi/menu';
 import { useParams, useNavigate } from 'react-router';
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 
 import {
   Box,
   Alert,
-  Button,
   styled,
   Tooltip,
   Snackbar,
   useTheme,
   IconButton,
   CircularProgress,
-  alpha,
-  Typography,
 } from '@mui/material';
 
 import axios from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
 
-import { ORIGIN } from 'src/sections/knowledgebase/constants/knowledge-search';
-import { getConnectorPublicUrl } from 'src/sections/accountdetails/account-settings/services/utils/services-configuration-service';
-
-import { Agent } from 'src/types/agent';
 import HtmlViewer from 'src/sections/qna/chatbot/components/html-highlighter';
 import TextViewer from 'src/sections/qna/chatbot/components/text-highlighter';
+import { ORIGIN } from 'src/sections/knowledgebase/constants/knowledge-search';
 import ExcelViewer from 'src/sections/qna/chatbot/components/excel-highlighter';
+import { StreamingContext } from 'src/sections/qna/chatbot/components/chat-message';
 import ChatMessagesArea from 'src/sections/qna/chatbot/components/chat-message-area';
 import PdfHighlighterComp from 'src/sections/qna/chatbot/components/pdf-highlighter';
 import MarkdownViewer from 'src/sections/qna/chatbot/components/markdown-highlighter';
 import DocxHighlighterComp from 'src/sections/qna/chatbot/components/docx-highlighter';
-import { StreamingContext } from 'src/sections/qna/chatbot/components/chat-message';
 import { processStreamingContentLegacy } from 'src/sections/qna/chatbot/utils/styles/content-processing';
-import AgentApiService, { KnowledgeBase } from './services/agent-api-service';
+import { getConnectorPublicUrl } from 'src/sections/accountdetails/account-settings/services/utils/services-configuration-service';
+
 import AgentChatInput from './components/agent-chat-input';
+import AgentApiService from './services/agent-api-service';
 import AgentChatSidebar from './components/agent-chat-sidebar';
+
+import type { KnowledgeBase } from './services/agent-api-service';
 
 const DRAWER_WIDTH = 300;
 

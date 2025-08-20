@@ -15,6 +15,8 @@ import {
   GOOGLE_WORKSPACE_CREDENTIALS_PATH,
   GOOGLE_WORKSPACE_INDIVIDUAL_CREDENTIALS_PATH,
   ATLASIAN_OAUTH_CONFIG_PATH,
+  MICROSOFT_WORKSPACE_CONFIG_PATH,
+  MICROSOFT_WORKSPACE_CREDENTIALS_PATH,
 } from '../consts/constants';
 import { generateFetchConfigToken } from '../utils/generateToken';
 
@@ -158,7 +160,7 @@ export const getAtlassianOauthConfig = async (
   }
   const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
     {
-      uri: `${url}/${ATLASIAN_OAUTH_CONFIG_PATH}/${req.user.org_id}`,
+      uri: `${url}/${ATLASIAN_OAUTH_CONFIG_PATH}`,
       method: HttpMethod.GET,
       headers: {
         Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
@@ -209,7 +211,7 @@ export const setAtlassianOauthConfig = async (
   }
   const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
     {
-      uri: `${url}/${ATLASIAN_OAUTH_CONFIG_PATH}/${req.user.org_id}`,
+      uri: `${url}/${ATLASIAN_OAUTH_CONFIG_PATH}`,
       method: HttpMethod.POST,
       headers: {
         Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
@@ -336,6 +338,113 @@ export const setRefreshTokenCredentials = async (
           refresh_token_expiry_time,
         }),
       },
+    };
+
+  const cmCommand = new ConfigurationManagerServiceCommand(
+    configurationManagerCommandOptions,
+  );
+  const response = await cmCommand.execute();
+  return response;
+};
+
+// Microsoft 365 Connector Functions
+export const getMicrosoftWorkspaceConfig = async (
+  req: AuthenticatedUserRequest,
+  url: string,
+  scopedJwtSecret: string,
+): Promise<ConfigurationManagerResponse> => {
+  if (!req.user) {
+    throw new NotFoundError('User Not Found');
+  }
+
+  const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
+    {
+      uri: `${url}/${MICROSOFT_WORKSPACE_CONFIG_PATH}`,
+      method: HttpMethod.GET,
+      headers: {
+        Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
+        'Content-Type': 'application/json',
+      },
+    };
+
+  const cmCommand = new ConfigurationManagerServiceCommand(
+    configurationManagerCommandOptions,
+  );
+  const response = await cmCommand.execute();
+  return response;
+};
+
+export const setMicrosoftWorkspaceConfig = async (
+  req: AuthenticatedUserRequest,
+  url: string,
+  scopedJwtSecret: string,
+): Promise<ConfigurationManagerResponse> => {
+  if (!req.user) {
+    throw new NotFoundError('User Not Found');
+  }
+
+  const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
+    {
+      uri: `${url}/${MICROSOFT_WORKSPACE_CONFIG_PATH}`,
+      method: HttpMethod.POST,
+      headers: {
+        Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
+        'Content-Type': 'application/json',
+      },
+      body: req.body,
+    };
+
+  const cmCommand = new ConfigurationManagerServiceCommand(
+    configurationManagerCommandOptions,
+  );
+  const response = await cmCommand.execute();
+  return response;
+};
+
+export const getMicrosoftWorkspaceCredentials = async (
+  req: AuthenticatedUserRequest,
+  url: string,
+  scopedJwtSecret: string,
+): Promise<ConfigurationManagerResponse> => {
+  if (!req.user) {
+    throw new NotFoundError('User Not Found');
+  }
+
+  const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
+    {
+      uri: `${url}/${MICROSOFT_WORKSPACE_CREDENTIALS_PATH}`,
+      method: HttpMethod.GET,
+      headers: {
+        Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
+        'Content-Type': 'application/json',
+      },
+    };
+
+  const cmCommand = new ConfigurationManagerServiceCommand(
+    configurationManagerCommandOptions,
+  );
+  const response = await cmCommand.execute();
+  return response;
+};
+
+export const setMicrosoftWorkspaceCredentials = async (
+  req: AuthenticatedUserRequest,
+  url: string,
+  scopedJwtSecret: string,
+): Promise<ConfigurationManagerResponse> => {
+  if (!req.user) {
+    throw new NotFoundError('User Not Found');
+  }
+
+  const configurationManagerCommandOptions: ConfigurationManagerCommandOptions =
+    {
+      uri: `${url}/${MICROSOFT_WORKSPACE_CREDENTIALS_PATH}`,
+      method: HttpMethod.POST,
+      headers: {
+        Authorization: `Bearer ${await generateFetchConfigToken(req.user, scopedJwtSecret)}`,
+        'Content-Type': 'application/json',
+      },
+      body: req.body,
     };
 
   const cmCommand = new ConfigurationManagerServiceCommand(

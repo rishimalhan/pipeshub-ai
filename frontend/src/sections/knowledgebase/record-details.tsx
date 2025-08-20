@@ -3,6 +3,7 @@ import type { User } from 'src/context/UserContext';
 import type { Icon as IconifyIcon } from '@iconify/react';
 
 import { Icon } from '@iconify/react';
+import ReactMarkdown from 'react-markdown';
 import dbIcon from '@iconify-icons/mdi/database';
 import robotIcon from '@iconify-icons/mdi/robot';
 import closeIcon from '@iconify-icons/mdi/close';
@@ -11,6 +12,7 @@ import pencilIcon from '@iconify-icons/mdi/pencil';
 import updateIcon from '@iconify-icons/mdi/update';
 import accountIcon from '@iconify-icons/mdi/account';
 import refreshIcon from '@iconify-icons/mdi/refresh';
+import linkIcon from '@iconify-icons/mdi/open-in-new';
 import clockIcon from '@iconify-icons/mdi/clock-outline';
 import emailIcon from '@iconify-icons/mdi/email-outline';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -26,42 +28,40 @@ import fileTextBoxIcon from '@iconify-icons/mdi/file-text-outline';
 import fileCodeBoxIcon from '@iconify-icons/mdi/file-code-outline';
 import fileArchiveBoxIcon from '@iconify-icons/mdi/archive-outline';
 import fileDocumentBoxIcon from '@iconify-icons/mdi/file-document-box';
-import filePowerpointBoxIcon from '@iconify-icons/mdi/file-powerpoint-box';
 import descriptionIcon from '@iconify-icons/mdi/file-document-outline';
-import linkIcon from '@iconify-icons/mdi/open-in-new';
+import filePowerpointBoxIcon from '@iconify-icons/mdi/file-powerpoint-box';
 
 import {
   Box,
   Chip,
   Grid,
   Card,
+  Menu,
   Stack,
   alpha,
   Alert,
   Drawer,
   Button,
+  Dialog,
   Divider,
   Tooltip,
   useTheme,
   Snackbar,
+  MenuItem,
   Container,
   Typography,
   IconButton,
   CardHeader,
   CardContent,
-  useMediaQuery,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
+  useMediaQuery,
+  DialogContent,
+  CircularProgress,
 } from '@mui/material';
 
 import axios from 'src/utils/axios';
-import ReactMarkdown from 'react-markdown';
+
 import { CONFIG } from 'src/config-global';
 import { useUsers } from 'src/context/UserContext';
 
@@ -70,7 +70,8 @@ import RecordSalesAgent from './ask-me-anything';
 import RecordDocumentViewer from './show-documents';
 import EditRecordDialog from './edit-record-dialog';
 import DeleteRecordDialog from './delete-record-dialog';
-import type { MetadataItem, Permissions, RecordDetailsResponse } from './types/record-details';
+
+import type { Permissions, MetadataItem, RecordDetailsResponse } from './types/record-details';
 
 const getIndexingStatusColor = (
   status: string

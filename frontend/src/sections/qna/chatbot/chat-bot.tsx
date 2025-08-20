@@ -1,31 +1,27 @@
 import type {
   Message,
   Citation,
-  Metadata,
   Conversation,
   CustomCitation,
+  CompletionData,
   FormattedMessage,
   ExpandedCitationsState,
-  CompletionData,
 } from 'src/types/chat-bot';
 
 import { Icon } from '@iconify/react';
 import menuIcon from '@iconify-icons/mdi/menu';
 import { useParams, useNavigate } from 'react-router';
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 
 import {
   Box,
   Alert,
-  Button,
   styled,
   Tooltip,
   Snackbar,
   useTheme,
   IconButton,
   CircularProgress,
-  alpha,
-  Typography,
 } from '@mui/material';
 
 import axios from 'src/utils/axios';
@@ -40,12 +36,12 @@ import ChatSidebar from './components/chat-sidebar';
 import HtmlViewer from './components/html-highlighter';
 import TextViewer from './components/text-highlighter';
 import ExcelViewer from './components/excel-highlighter';
+import WelcomeMessage from './components/welcome-message';
+import { StreamingContext } from './components/chat-message';
 import ChatMessagesArea from './components/chat-message-area';
 import PdfHighlighterComp from './components/pdf-highlighter';
 import MarkdownViewer from './components/markdown-highlighter';
 import DocxHighlighterComp from './components/docx-highlighter';
-import WelcomeMessage from './components/welcome-message';
-import { StreamingContext } from './components/chat-message';
 import { processStreamingContentLegacy } from './utils/styles/content-processing';
 
 const DRAWER_WIDTH = 300;

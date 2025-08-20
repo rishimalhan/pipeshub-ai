@@ -68,7 +68,8 @@ import {
 import { KnowledgeBaseAPI } from '../services/api';
 import DeleteRecordDialog from '../delete-record-dialog';
 import KnowledgeBaseSideBar from '../knowledge-base-sidebar';
-import { Filters } from '../types/knowledge-base';
+
+import type { Filters } from '../types/knowledge-base';
 
 // Import the Filters type from the sidebar to ensure compatibility
 

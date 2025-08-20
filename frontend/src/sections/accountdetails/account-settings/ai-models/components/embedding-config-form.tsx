@@ -2,10 +2,14 @@
 // 📁 Legacy Form Components (Simplified)
 // ===================================================================
 
+import type { DynamicFormRef } from 'src/components/dynamic-form/components/dynamic-form';
+
 // Embedding Config Form (for backward compatibility with dynamic form)
 import React, { forwardRef } from 'react';
+
 import { Link, Alert } from '@mui/material';
-import DynamicForm, { DynamicFormRef } from 'src/components/dynamic-form/components/dynamic-form';
+
+import DynamicForm from 'src/components/dynamic-form/components/dynamic-form';
 
 import { modelService } from '../services/universal-config';
 

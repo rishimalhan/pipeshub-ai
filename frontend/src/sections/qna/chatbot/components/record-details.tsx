@@ -1,4 +1,3 @@
-import type { CustomCitation } from 'src/types/chat-bot';
 import type {
   Permissions,
   RecordDetailsResponse,

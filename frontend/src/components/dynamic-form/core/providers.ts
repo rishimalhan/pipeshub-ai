@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { FIELD_TEMPLATES, FieldTemplate, FieldTemplateName } from './field-templates';
+
+import { FIELD_TEMPLATES } from './field-templates';
+
+import type { FieldTemplate, FieldTemplateName } from './field-templates';
 
 export interface FieldConfig {
   name: FieldTemplateName;

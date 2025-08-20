@@ -12,9 +12,15 @@ export const GOOGLE_WORKSPACE_TOKEN_EXCHANGE_PATH =
 export const CONNECTORS_TYPES = {
   GOOGLE_WORKSPACE: 'googleWorkspace',
   ATLASIAN: 'atlassian',
+  MICROSOFT_WORKSPACE: 'microsoftWorkspace',
 };
 export const REFRESH_TOKEN_PATH =
   'api/v1/connectors/internal/refreshIndividualConnectorToken';
 
 export const ATLASIAN_OAUTH_CONFIG_PATH =
   'api/v1/configurationManager/internal/connectors/atlassian/config';
+
+export const MICROSOFT_WORKSPACE_CONFIG_PATH =
+  'api/v1/configurationManager/internal/connectors/microsoftWorkspace/config';
+export const MICROSOFT_WORKSPACE_CREDENTIALS_PATH =
+  'api/v1/configurationManager/internal/connectors/microsoftWorkspace/credentials';

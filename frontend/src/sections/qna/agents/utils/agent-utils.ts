@@ -2,8 +2,8 @@
 import type {
   Agent,
   AgentFormData,
-  AgentTemplateFormData,
   AgentFilterOptions,
+  AgentTemplateFormData,
 } from 'src/types/agent';
 
 // Validation functions

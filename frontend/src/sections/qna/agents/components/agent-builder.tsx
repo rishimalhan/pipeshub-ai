@@ -1,49 +1,51 @@
 // src/sections/agents/components/enhanced-agent-builder.tsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Box,
-  Stepper,
-  Step,
-  StepLabel,
-  Button,
-  Typography,
-  TextField,
-  Grid,
-  Chip,
-  IconButton,
-  Alert,
-  CircularProgress,
-  useTheme,
-  alpha,
-  Paper,
-  Fade,
-  Autocomplete,
-  Card,
-  CardContent,
-  Stack,
-  InputAdornment,
-  Avatar,
-} from '@mui/material';
+import type { Agent, AgentTemplate, AgentFormData } from 'src/types/agent';
+
 import { Icon } from '@iconify/react';
+import cogIcon from '@iconify-icons/mdi/cog';
+import toolIcon from '@iconify-icons/mdi/tools';
 import closeIcon from '@iconify-icons/mdi/close';
+import checkIcon from '@iconify-icons/mdi/check';
+import brainIcon from '@iconify-icons/mdi/brain';
+import deleteIcon from '@iconify-icons/mdi/delete';
+import searchIcon from '@iconify-icons/mdi/magnify';
+import databaseIcon from '@iconify-icons/mdi/database';
 import arrowLeftIcon from '@iconify-icons/mdi/arrow-left';
 import arrowRightIcon from '@iconify-icons/mdi/arrow-right';
-import checkIcon from '@iconify-icons/mdi/check';
-import deleteIcon from '@iconify-icons/mdi/delete';
 import sparklesIcon from '@iconify-icons/mdi/star-four-points';
-import toolIcon from '@iconify-icons/mdi/tools';
-import databaseIcon from '@iconify-icons/mdi/database';
-import brainIcon from '@iconify-icons/mdi/brain';
-import searchIcon from '@iconify-icons/mdi/magnify';
-import cogIcon from '@iconify-icons/mdi/cog';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 
-import type { Agent, AgentTemplate, AgentFormData } from 'src/types/agent';
+import {
+  Box,
+  Step,
+  Grid,
+  Chip,
+  Fade,
+  Card,
+  Alert,
+  alpha,
+  Paper,
+  Stack,
+  Dialog,
+  Button,
+  Avatar,
+  Stepper,
+  useTheme,
+  StepLabel,
+  TextField,
+  Typography,
+  IconButton,
+  DialogTitle,
+  CardContent,
+  Autocomplete,
+  DialogContent,
+  InputAdornment,
+  CircularProgress,
+} from '@mui/material';
+
 import AgentApiService from '../services/agent-api-service';
-import { validateAgentForm, getInitialAgentFormData, APPS } from '../utils/agent-utils';
 import { createScrollableContainerStyle } from '../../chatbot/utils/styles/scrollbar';
+import { APPS, validateAgentForm, getInitialAgentFormData } from '../utils/agent-utils';
 
 interface AgentBuilderProps {
   open: boolean;

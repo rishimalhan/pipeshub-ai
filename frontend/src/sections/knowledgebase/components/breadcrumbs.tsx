@@ -1,20 +1,21 @@
-import { Icon } from '@iconify/react';
-import {
-  Breadcrumbs,
-  Typography,
-  Stack,
-  Box,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  styled,
-} from '@mui/material';
 import { useState } from 'react';
-import chevronRightIcon from '@iconify-icons/mdi/chevron-right';
+import { Icon } from '@iconify/react';
 import homeIcon from '@iconify-icons/mdi/home';
 import brainIcon from '@iconify-icons/mdi/brain';
 import folderIcon from '@iconify-icons/mdi/folder';
+import chevronRightIcon from '@iconify-icons/mdi/chevron-right';
+
+import {
+  Box,
+  Menu,
+  Stack,
+  styled,
+  MenuItem,
+  Typography,
+  Breadcrumbs,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 
 export const renderSmartBreadcrumbs = (
   navigationPath: any,

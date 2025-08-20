@@ -1442,6 +1442,115 @@ export const getGoogleWorkspaceOauthConfig =
     }
   };
 
+// Microsoft 365 Connector Functions
+export const getMicrosoftWorkspaceConfig =
+  (keyValueStoreService: KeyValueStoreService) =>
+  async (req: AuthenticatedUserRequest|AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+    try {
+      const configManagerConfig = loadConfigurationManagerConfig();
+      const orgId = getOrgIdFromRequest(req);
+      if (!orgId) {
+        throw new BadRequestError('Organisation not found');
+      } 
+      const encryptedMicrosoftConfig = await keyValueStoreService.get<string>(
+        `${configPaths.connectors.microsoftWorkspace.config}/${orgId}`,
+      );
+      if (encryptedMicrosoftConfig) {
+        const microsoftConfig = JSON.parse(
+          EncryptionService.getInstance(
+            configManagerConfig.algorithm,
+            configManagerConfig.secretKey,  
+          ).decrypt(encryptedMicrosoftConfig),
+        );
+        res.status(200).json(microsoftConfig).end();
+      } else {
+        res.status(200).json({}).end();
+      }
+    } catch (error: any) {
+      logger.error('Error getting Microsoft 365 config', { error });
+      next(error);
+    }
+  }; 
+  
+export const setMicrosoftWorkspaceConfig =
+  (keyValueStoreService: KeyValueStoreService) =>
+  async (req: AuthenticatedUserRequest|AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+    try {
+      const oauthConfig = req.body;
+      const orgId = getOrgIdFromRequest(req);
+      if (!orgId) {
+        throw new BadRequestError('Organisation not found');
+      }
+      const configManagerConfig = loadConfigurationManagerConfig();
+      const encryptedMicrosoftConfig = EncryptionService.getInstance(
+        configManagerConfig.algorithm,
+        configManagerConfig.secretKey,
+      ).encrypt(JSON.stringify(oauthConfig));
+      await keyValueStoreService.set<string>(
+        `${configPaths.connectors.microsoftWorkspace.config}/${orgId}`,
+        encryptedMicrosoftConfig,
+      );
+      res.status(200).json({ message: 'Microsoft 365 config created successfully' });
+    } catch (error: any) {
+      logger.error('Error creating Microsoft 365 config', { error });
+      next(error);
+    }
+  };
+
+export const getMicrosoftWorkspaceCredentials =
+  (keyValueStoreService: KeyValueStoreService) =>
+  async (req: AuthenticatedUserRequest|AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+    try {
+      const configManagerConfig = loadConfigurationManagerConfig();
+      const orgId = getOrgIdFromRequest(req);
+      if (!orgId) {
+        throw new BadRequestError('Organisation not found');
+      }
+      const encryptedMicrosoftCredentials = await keyValueStoreService.get<string>(
+        `${configPaths.connectors.microsoftWorkspace.credentials}/${orgId}`,
+      );
+      if (encryptedMicrosoftCredentials) {
+        const microsoftCredentials = JSON.parse(
+          EncryptionService.getInstance(
+            configManagerConfig.algorithm,
+            configManagerConfig.secretKey,  
+          ).decrypt(encryptedMicrosoftCredentials),
+        );
+        res.status(200).json(microsoftCredentials).end();
+      } else {
+        res.status(200).json({}).end();
+      }
+    } catch (error: any) {
+      logger.error('Error getting Microsoft 365 credentials', { error });
+      next(error);
+    }
+  };
+
+export const setMicrosoftWorkspaceCredentials =
+  (keyValueStoreService: KeyValueStoreService) =>
+  async (req: AuthenticatedUserRequest|AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+    try {
+      const credentials = req.body;
+      const configManagerConfig = loadConfigurationManagerConfig();
+      const orgId = getOrgIdFromRequest(req);
+      if (!orgId) {
+        throw new BadRequestError('Organisation not found');
+      }
+      const encryptedMicrosoftCredentials = EncryptionService.getInstance(
+        configManagerConfig.algorithm,  
+        configManagerConfig.secretKey,
+      ).encrypt(JSON.stringify(credentials));
+      await keyValueStoreService.set<string>(
+        `${configPaths.connectors.microsoftWorkspace.credentials}/${orgId}`,
+        encryptedMicrosoftCredentials,
+      );
+      res.status(200).json({ message: 'Microsoft 365 credentials created successfully' });
+    } catch (error: any) {
+      logger.error('Error creating Microsoft 365 credentials', { error });
+      next(error);
+    }
+  };
+
 export const setSsoAuthConfig =
   (keyValueStoreService: KeyValueStoreService) =>
   async (req: AuthenticatedUserRequest, res: Response, next: NextFunction) => {

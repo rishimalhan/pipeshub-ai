@@ -1,29 +1,33 @@
-import {
-  Fade,
-  Box,
-  Stack,
-  ToggleButtonGroup,
-  ToggleButton,
-  Typography,
-  alpha,
-  Button,
-  styled,
-  IconButton,
-  Paper,
-  Theme,
-} from '@mui/material';
+import type {
+  Theme} from '@mui/material';
+
 import { Icon } from '@iconify/react';
-import arrowLeftIcon from '@iconify-icons/mdi/arrow-left';
+import refreshIcon from '@iconify-icons/mdi/refresh';
 import viewListIcon from '@iconify-icons/mdi/view-list';
 import viewGridIcon from '@iconify-icons/mdi/view-grid';
+import arrowLeftIcon from '@iconify-icons/mdi/arrow-left';
+import folderIcon from '@iconify-icons/mdi/folder-outline';
 import folderPlusIcon from '@iconify-icons/mdi/folder-plus';
 import fileUploadIcon from '@iconify-icons/mdi/file-upload';
 import accountMultipleIcon from '@iconify-icons/mdi/account-multiple';
-import refreshIcon from '@iconify-icons/mdi/refresh';
-import folderIcon from '@iconify-icons/mdi/folder-outline';
-import { renderSmartBreadcrumbs } from './breadcrumbs';
+
+import {
+  Box,
+  Fade,
+  Stack,
+  alpha,
+  Paper,
+  Button,
+  styled,
+  Typography,
+  IconButton,
+  ToggleButton,
+  ToggleButtonGroup
+} from '@mui/material';
+
 import { GridView } from './folder-grid-view';
 import { ListView } from './folder-list-view';
+import { renderSmartBreadcrumbs } from './breadcrumbs';
 
 const ModernToolbar = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1, 1.5),

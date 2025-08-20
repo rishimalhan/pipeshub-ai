@@ -20,9 +20,10 @@ import { Box, Button, styled, useTheme, Typography, IconButton } from '@mui/mate
 import axiosInstance from 'src/utils/axios';
 
 import RecordSidebar from './ask-me-anything-sidebar';
-import ChatInput, { Model, ChatMode } from '../qna/chatbot/components/chat-input';
+import ChatInput from '../qna/chatbot/components/chat-input';
 import PdfHighlighterComp from '../qna/chatbot/components/pdf-highlighter';
 
+import type { Model, ChatMode } from '../qna/chatbot/components/chat-input';
 import type {
   Record,
   RecordHeaderProps,

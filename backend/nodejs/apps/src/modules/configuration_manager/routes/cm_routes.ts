@@ -51,6 +51,8 @@ import {
   getModelsByType,
   getAtlassianOauthConfig,
   setAtlassianOauthConfig,
+  getMicrosoftWorkspaceConfig,
+  setMicrosoftWorkspaceConfig,
 } from '../controller/cm_controller';
 import { KeyValueStoreService } from '../../../libs/services/keyValueStore.service';
 import { ValidationMiddleware } from '../../../libs/middlewares/validation.middleware';
@@ -78,6 +80,7 @@ import {
   addProviderRequestSchema,
   updateProviderRequestSchema,
   atlassianCredentialsSchema,
+  microsoftWorkspaceCredentialsSchema,
 } from '../validator/validators';
 import { FileProcessorFactory } from '../../../libs/middlewares/file_processor/fp.factory';
 import { FileProcessingType } from '../../../libs/middlewares/file_processor/fp.constant';
@@ -238,6 +241,75 @@ export function createConfigurationManagerRouter(container: Container): Router {
         throw new NotFoundError('User not found');
       }
       return setAtlassianOauthConfig(keyValueStoreService)(
+        req,
+        res,
+        next,
+      );
+    },
+  );
+
+  // Microsoft 365 Connector Routes
+  router.get(
+    '/internal/connectors/microsoftWorkspace/config',
+    authMiddleware.scopedTokenValidator(TokenScopes.FETCH_CONFIG),
+    metricsMiddleware(container),
+    (req: AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+      if (!req.tokenPayload) {
+        throw new NotFoundError('User not found');
+      }
+      return getMicrosoftWorkspaceConfig(keyValueStoreService)(
+        req,
+        res,
+        next,
+      );
+    },
+  );
+
+  router.get(
+    '/connectors/microsoftWorkspace/config',
+    authMiddleware.authenticate,
+    userAdminCheck,
+    metricsMiddleware(container),
+    (req: AuthenticatedUserRequest, res: Response, next: NextFunction) => {
+      if (!req.user) {
+        throw new NotFoundError('User not found');
+      }
+      return getMicrosoftWorkspaceConfig(keyValueStoreService)(
+        req,
+        res,
+        next,
+      );
+    },
+  );
+
+  router.post(
+    '/connectors/microsoftWorkspace/config',
+    authMiddleware.authenticate,
+    userAdminCheck,
+    metricsMiddleware(container),
+    ValidationMiddleware.validate(microsoftWorkspaceCredentialsSchema),
+    (req: AuthenticatedUserRequest, res: Response, next: NextFunction) => {
+      if (!req.user) {
+        throw new NotFoundError('User not found');
+      }
+      return setMicrosoftWorkspaceConfig(keyValueStoreService)(
+        req,
+        res,
+        next,
+      );
+    },
+  );
+
+  router.post(
+    '/internal/connectors/microsoftWorkspace/config',
+    authMiddleware.scopedTokenValidator(TokenScopes.FETCH_CONFIG),
+    metricsMiddleware(container),
+    ValidationMiddleware.validate(microsoftWorkspaceCredentialsSchema),
+    (req: AuthenticatedServiceRequest, res: Response, next: NextFunction) => {
+      if (!req.tokenPayload) {
+        throw new NotFoundError('User not found');
+      }
+      return setMicrosoftWorkspaceConfig(keyValueStoreService)(
         req,
         res,
         next,

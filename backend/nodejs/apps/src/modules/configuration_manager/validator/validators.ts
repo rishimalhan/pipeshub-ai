@@ -277,6 +277,15 @@ export const atlassianCredentialsSchema = z.object({
   }),
 });
 
+export const microsoftWorkspaceCredentialsSchema = z.object({
+  body: z.object({
+    clientId: z.string().min(1, { message: 'Microsoft client ID is required' }),
+    clientSecret: z.string().min(1, { message: 'Microsoft client Secret is required' }),
+    tenantId: z.string().min(1, { message: 'Microsoft tenant ID is required' }),
+    redirectUri: z.string().url().optional().or(z.literal('')),
+  }),
+});
+
 // export const aiModelsConfigSchema = z.object({
 //   body: z
 //     .object({

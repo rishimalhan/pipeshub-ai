@@ -2,12 +2,12 @@ import { z } from 'zod';
 import eyeIcon from '@iconify-icons/eva/eye-fill';
 import infoIcon from '@iconify-icons/eva/info-outline';
 import lockIcon from '@iconify-icons/eva/lock-outline';
+import linkIcon from '@iconify-icons/eva/link-outline';
 import eyeOffIcon from '@iconify-icons/eva/eye-off-fill';
 import editOutlineIcon from '@iconify-icons/eva/edit-outline';
 import saveOutlineIcon from '@iconify-icons/eva/save-outline';
 import closeOutlineIcon from '@iconify-icons/eva/close-outline';
-import linkIcon from '@iconify-icons/eva/link-outline';
-import { useState, useEffect, forwardRef, useCallback, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 
 import { alpha, useTheme } from '@mui/material/styles';
 import {
@@ -15,7 +15,6 @@ import {
   Grid,
   Link,
   Alert,
-  Paper,
   Stack,
   Button,
   Tooltip,
@@ -30,7 +29,6 @@ import axios from 'src/utils/axios';
 
 import { Iconify } from 'src/components/iconify';
 
-import { getConnectorPublicUrl } from '../../services/utils/services-configuration-service';
 
 interface AtlassianConfigFormProps {
   onValidationChange: (isValid: boolean) => void;

@@ -17,6 +17,11 @@ export const configPaths = {
       credentials: '/services/connectors/atlassian/credentials',
       config: '/services/connectors/atlassian/config',
     },
+    microsoftWorkspace: {
+      base: '/services/connectors/microsoftWorkspace/',
+      credentials: '/services/connectors/microsoftWorkspace/credentials',
+      config: '/services/connectors/microsoftWorkspace/config',
+    },
   },
   smtp: '/services/smtp',
   auth: {

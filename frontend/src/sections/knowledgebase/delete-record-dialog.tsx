@@ -18,7 +18,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import axios from 'src/utils/axios';
 import { KnowledgeBaseAPI } from './services/api';
 
 interface DeleteRecordDialogProps {

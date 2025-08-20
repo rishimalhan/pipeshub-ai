@@ -1,4 +1,4 @@
-import type { Metadata, CustomCitation } from 'src/types/chat-bot';
+import type { CustomCitation } from 'src/types/chat-bot';
 import type { Record, ChatMessageProps } from 'src/types/chat-message';
 
 import remarkGfm from 'remark-gfm';
@@ -11,9 +11,9 @@ import React, {
   useRef,
   useMemo,
   useState,
-  useCallback,
   Fragment,
   useContext,
+  useCallback,
   createContext,
 } from 'react';
 
@@ -22,23 +22,23 @@ import {
   Fade,
   Paper,
   Stack,
+  alpha,
   Dialog,
   Popper,
   Divider,
+  useTheme,
   Typography,
   IconButton,
   DialogTitle,
   DialogContent,
   CircularProgress,
   ClickAwayListener,
-  alpha,
-  useTheme,
 } from '@mui/material';
 
 import RecordDetails from './record-details';
 import MessageFeedback from './message-feedback';
-import CitationHoverCard from './citations-hover-card';
-import SourcesAndCitations from './sources-citations'; // Import the new unified component
+import SourcesAndCitations from './sources-citations';
+import CitationHoverCard from './citations-hover-card'; // Import the new unified component
 import { extractAndProcessCitations } from '../utils/styles/content-processing';
 
 interface StreamingContextType {

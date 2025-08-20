@@ -1,7 +1,9 @@
+import type React from 'react';
 import type { Icon as IconifyIcon } from '@iconify/react';
 
 import googleIcon from '@iconify-icons/mdi/google';
 import atlassianIcon from '@iconify-icons/eva/globe-2-outline';
+import settingsIcon from '@iconify-icons/eva/settings-2-outline';
 
 export interface ConnectorConfig {
   id: string;
@@ -13,6 +15,8 @@ export interface ConnectorConfig {
 }
 export interface ConfigStatus {
   googleWorkspace: boolean;
+  atlassian: boolean;
+  microsoftWorkspace: boolean;
 }
 export const GOOGLE_WORKSPACE_SCOPE = [
   'email openid',
@@ -46,9 +50,18 @@ export const CONNECTORS_LIST: ConnectorConfig[] = [
   },
   {
     id: 'atlassian',
+    icon: atlassianIcon,
     src: '/assets/icons/connectors/atlassian.svg',
     title: 'Atlassian',
     description: 'Integrate with Atlassian for Confluence and Jira',
     color: '#0052CC',
+  },
+  {
+    id: 'microsoftWorkspace',
+    icon: settingsIcon,
+    src: '/assets/icons/connectors/microsoft.svg',
+    title: 'Microsoft 365',
+    description: 'Integrate with Microsoft 365 for OneDrive, Outlook, SharePoint, and Teams',
+    color: '#0078D4',
   },
 ];

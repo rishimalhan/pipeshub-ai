@@ -1,46 +1,49 @@
 // RecordDocumentViewer.tsx - Viewport Mode (Full height below navbar)
 import dayjs from 'dayjs';
 import { Icon } from '@iconify/react';
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import eyeIcon from '@iconify-icons/mdi/eye';
+import closeIcon from '@iconify-icons/mdi/close';
 import downloadIcon from '@iconify-icons/mdi/download';
+import fullscreenIcon from '@iconify-icons/mdi/fullscreen';
+import openInNewIcon from '@iconify-icons/mdi/open-in-new';
 import zipIcon from '@iconify-icons/vscode-icons/file-type-zip';
 import pdfIcon from '@iconify-icons/vscode-icons/file-type-pdf2';
 import wordIcon from '@iconify-icons/vscode-icons/file-type-word2';
 import imageIcon from '@iconify-icons/vscode-icons/file-type-image';
+import fullscreenExitIcon from '@iconify-icons/mdi/fullscreen-exit';
 import excelIcon from '@iconify-icons/vscode-icons/file-type-excel2';
 import defaultFileIcon from '@iconify-icons/mdi/file-document-outline';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import powerpointIcon from '@iconify-icons/vscode-icons/file-type-powerpoint2';
-import eyeIcon from '@iconify-icons/mdi/eye';
-import closeIcon from '@iconify-icons/mdi/close';
-import fullscreenIcon from '@iconify-icons/mdi/fullscreen';
-import fullscreenExitIcon from '@iconify-icons/mdi/fullscreen-exit';
-import openInNewIcon from '@iconify-icons/mdi/open-in-new';
 
 import {
   Box,
+  Fade,
   Stack,
+  Alert,
+  Tooltip,
+  Snackbar,
+  useTheme,
   Typography,
   IconButton,
   CircularProgress,
-  Fade,
-  Alert,
-  Snackbar,
-  useTheme,
-  Tooltip,
 } from '@mui/material';
 
 import axios from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
+
 import { handleDownloadDocument } from './utils';
-import type { Record } from './types/record-details';
-import { getConnectorPublicUrl } from '../accountdetails/account-settings/services/utils/services-configuration-service';
 import { ORIGIN } from './constants/knowledge-search';
-import PdfHighlighterComp from '../qna/chatbot/components/pdf-highlighter';
 import DocxViewer from '../qna/chatbot/components/docx-highlighter';
-import ExcelViewer from '../qna/chatbot/components/excel-highlighter';
 import HtmlViewer from '../qna/chatbot/components/html-highlighter';
 import TextViewer from '../qna/chatbot/components/text-highlighter';
+import ExcelViewer from '../qna/chatbot/components/excel-highlighter';
+import PdfHighlighterComp from '../qna/chatbot/components/pdf-highlighter';
 import MarkdownViewer from '../qna/chatbot/components/markdown-highlighter';
+import { getConnectorPublicUrl } from '../accountdetails/account-settings/services/utils/services-configuration-service';
+
+import type { Record } from './types/record-details';
 
 // Simplified state management for viewport mode
 interface DocumentViewerState {

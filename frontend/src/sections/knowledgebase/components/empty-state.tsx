@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
 import { Icon } from '@iconify/react';
-import { Paper, Button, Typography, alpha } from '@mui/material';
-import searchIcon from '@iconify-icons/mdi/magnify';
 import addIcon from '@iconify-icons/mdi/plus';
+import searchIcon from '@iconify-icons/mdi/magnify';
+
+import { Paper, alpha, Button, Typography } from '@mui/material';
 
 // Empty State Component
 export const EmptyState = memo<{

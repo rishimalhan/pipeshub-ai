@@ -1,6 +1,8 @@
+import type { Theme } from '@mui/material/styles';
+
 import { Icon } from '@iconify/react';
-import React, { memo, useRef, useMemo, useState, useEffect, useCallback } from 'react';
-import { Theme } from '@mui/material/styles';
+import React, { memo, useState, useCallback } from 'react';
+
 import {
   Box,
   Grid,
@@ -8,16 +10,17 @@ import {
   Paper,
   alpha,
   Button,
+  Skeleton,
   Typography,
   CardActionArea,
   CircularProgress,
-  Skeleton,
 } from '@mui/material';
 
-import type { KnowledgeBase } from '../types/kb';
-import { getKBIcon } from '../utils/kb-icon';
 import { MenuButton } from './menu-button';
 import { EmptyState } from './empty-state';
+import { getKBIcon } from '../utils/kb-icon';
+
+import type { KnowledgeBase } from '../types/kb';
 
 const GridItem = memo<{
   kb: KnowledgeBase;

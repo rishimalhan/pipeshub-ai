@@ -2,36 +2,42 @@
 // 📁 Fixed Model Configuration Dialog - Provider Switching Issues Resolved
 // ===================================================================
 
-import React, { useState, useRef, useEffect } from 'react';
+import type { DynamicFormRef } from 'src/components/dynamic-form/components/dynamic-form';
+
 import { createPortal } from 'react-dom';
+import robotIcon from '@iconify-icons/mdi/robot';
+import closeIcon from '@iconify-icons/mdi/close';
+import React, { useRef, useState, useEffect } from 'react';
+
 import {
+  Box,
+  Chip,
+  Alert,
+  alpha,
   Dialog,
+  Button,
+  Divider,
+  useTheme,
+  Snackbar,
+  Backdrop,
+  Accordion,
+  Typography,
+  IconButton,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
-  Box,
-  Accordion,
   AccordionSummary,
   AccordionDetails,
-  Typography,
-  IconButton,
-  Alert,
-  Divider,
-  Chip,
-  useTheme,
-  alpha,
   CircularProgress,
-  Snackbar,
-  Fade,
-  Backdrop,
 } from '@mui/material';
+
 import { Iconify } from 'src/components/iconify';
-import robotIcon from '@iconify-icons/mdi/robot';
-import closeIcon from '@iconify-icons/mdi/close';
-import DynamicForm, { DynamicFormRef } from 'src/components/dynamic-form/components/dynamic-form';
-import { ModelProvider, ConfiguredModel, ModelType, AVAILABLE_MODEL_PROVIDERS } from '../types';
+import DynamicForm from 'src/components/dynamic-form/components/dynamic-form';
+
+import { AVAILABLE_MODEL_PROVIDERS } from '../types';
 import { modelService } from '../services/universal-config';
+
+import type { ModelType, ModelProvider, ConfiguredModel} from '../types';
 
 interface ModelConfigurationDialogProps {
   open: boolean;
@@ -131,7 +137,7 @@ const ModelConfigurationDialog: React.FC<ModelConfigurationDialogProps> = ({
 
     try {
       if (isEditMode) {
-        const modelType = selectedProvider.editingModel!.modelType;
+        const {modelType} = (selectedProvider.editingModel!);
         const formRef = formRefs.current[modelType];
 
         if (formRef) {

@@ -13,7 +13,9 @@ import {
   Fade,
   Stack,
   alpha,
+  Alert,
   Button,
+  Snackbar,
   Container,
   TextField,
   Typography,
@@ -22,19 +24,17 @@ import {
   LinearProgress,
   CircularProgress,
   ToggleButtonGroup,
-  Alert,
-  Snackbar,
 } from '@mui/material';
 
+import { GridView } from './dashboard-grid-view';
+import { ListView } from './dashboard-list-view';
 import { KnowledgeBaseAPI } from '../services/api';
+import { EditKnowledgeBaseDialog } from './dialogs/edit-dialogs';
+import { DeleteConfirmDialog } from './dialogs/delete-confim-dialog';
+import { CreateKnowledgeBaseDialog } from './dialogs/create-kb-dialog';
 
 import type { KnowledgeBase } from '../types/kb';
 import type { RouteParams } from '../hooks/use-router';
-import { CreateKnowledgeBaseDialog } from './dialogs/create-kb-dialog';
-import { EditKnowledgeBaseDialog } from './dialogs/edit-dialogs';
-import { DeleteConfirmDialog } from './dialogs/delete-confim-dialog';
-import { GridView } from './dashboard-grid-view';
-import { ListView } from './dashboard-list-view';
 
 interface DashboardProps {
   theme: any;

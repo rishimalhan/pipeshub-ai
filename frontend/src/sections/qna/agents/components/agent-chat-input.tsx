@@ -1,46 +1,45 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { Icon } from '@iconify/react';
-import arrowUpIcon from '@iconify-icons/mdi/arrow-up';
-import chevronDownIcon from '@iconify-icons/mdi/chevron-down';
-import plusIcon from '@iconify-icons/mdi/plus';
-import closeIcon from '@iconify-icons/mdi/close';
-import searchIcon from '@iconify-icons/mdi/magnify';
-import toolIcon from '@iconify-icons/mdi/tools';
-import databaseIcon from '@iconify-icons/mdi/database';
-import sparklesIcon from '@iconify-icons/mdi/star-four-points';
 import cogIcon from '@iconify-icons/mdi/cog';
+import plusIcon from '@iconify-icons/mdi/plus';
+import toolIcon from '@iconify-icons/mdi/tools';
+import closeIcon from '@iconify-icons/mdi/close';
 import checkIcon from '@iconify-icons/mdi/check';
+import searchIcon from '@iconify-icons/mdi/magnify';
+import arrowUpIcon from '@iconify-icons/mdi/arrow-up';
+import databaseIcon from '@iconify-icons/mdi/database';
+import chevronDownIcon from '@iconify-icons/mdi/chevron-down';
+import sparklesIcon from '@iconify-icons/mdi/star-four-points';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+
 import {
   Box,
-  Paper,
-  IconButton,
-  useTheme,
-  alpha,
+  Tab,
   Menu,
-  MenuItem,
-  Typography,
   Chip,
+  Grid,
+  Tabs,
+  Paper,
+  alpha,
+  Badge,
+  Dialog,
+  Button,
   Tooltip,
   Divider,
-  Dialog,
+  useTheme,
+  MenuItem,
+  TextField,
+  IconButton,
+  Typography,
   DialogTitle,
+  Autocomplete,
   DialogContent,
   DialogActions,
-  TextField,
   InputAdornment,
-  Grid,
-  Button,
-  Stack,
-  Card,
-  CardContent,
-  Badge,
-  Autocomplete,
-  Tabs,
-  Tab,
-  Collapse,
 } from '@mui/material';
-import { KnowledgeBase } from '../services/agent-api-service';
+
 import { APPS } from '../utils/agent-utils';
+
+import type { KnowledgeBase } from '../services/agent-api-service';
 
 export interface Model {
   provider: string;
@@ -303,7 +302,7 @@ const AgentChatInput: React.FC<ChatInputProps> = ({
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const value = e.target.value;
+      const {value} = e.target;
       setLocalValue(value);
       setHasText(!!value.trim());
 

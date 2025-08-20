@@ -1,0 +1,20 @@
+NODE_ENV=production
+LOG_LEVEL=info
+ALLOWED_ORIGINS=*
+
+SECRET_KEY=6ceb2b1cf200d9cab1cd3228ef9ed82278bc82c7c0526466148ddaee62f670
+
+
+# Connector Public is useful for getting webhook events or real-time sync events
+CONNECTOR_PUBLIC_BACKEND=
+# Use Public URL to open web page
+FRONTEND_PUBLIC_URL=http://localhost:3000
+
+ARANGO_PASSWORD=your_password
+
+REDIS_PASSWORD=
+
+MONGO_USERNAME=admin
+MONGO_PASSWORD=your_password
+
+QDRANT_API_KEY=ec0b0ae1ac23822e95c08fbb13d6b8afe86b5f152c3eec99aa080ad25a8f44

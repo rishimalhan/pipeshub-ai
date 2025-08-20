@@ -877,7 +877,7 @@ const TextViewer: React.FC<TextViewerProps> = ({
           }
 
           const candidateElements = Array.from(containerRef.current.querySelectorAll('.text-line'));
-          let highlightApplied = false;
+          // let highlightApplied = false;
           const newCleanups = new Map<string, () => void>();
 
           processedCitations.forEach((citation) => {
@@ -901,7 +901,7 @@ const TextViewer: React.FC<TextViewerProps> = ({
               if (result.success) {
                 if (result.cleanup) newCleanups.set(citationId, result.cleanup);
                 if (citationId === highlightedCitationId) {
-                  highlightApplied = true;
+                  // highlightApplied = true;
                 }
               }
             } else {
@@ -923,7 +923,7 @@ const TextViewer: React.FC<TextViewerProps> = ({
                 if (result.success) {
                   if (result.cleanup) newCleanups.set(citationId, result.cleanup);
                   if (citationId === highlightedCitationId) {
-                    highlightApplied = true;
+                    // highlightApplied = true;
                   }
                 }
               }

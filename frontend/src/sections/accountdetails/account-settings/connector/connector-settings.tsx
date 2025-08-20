@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import infoIcon from '@iconify-icons/eva/info-outline';
 import { useState, useEffect, useCallback } from 'react';
@@ -23,6 +24,7 @@ import { Iconify } from 'src/components/iconify';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { CONNECTORS_LIST } from './components/connectors-list';
+import ConfigureConnectorDialog from './components/configure-connector-individual-dialog';
 
 // Define connector types and interfaces
 interface ConnectorStatusMap {
@@ -35,6 +37,8 @@ interface ConnectorEnabledMap {
 
 export interface ConfigStatus {
   googleWorkspace: boolean;
+  atlassian: boolean;
+  microsoftWorkspace: boolean;
 }
 
 const ConnectorSettings = () => {
@@ -42,9 +46,11 @@ const ConnectorSettings = () => {
   const { user } = useAuthContext();
   const accountType = user?.accountType || 'individual';
   const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [currentConnector, setCurrentConnector] = useState<string | null>(null);
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
 
   const [checkingConfigs, setCheckingConfigs] = useState(true);
   const [configuredStatus, setConfiguredStatus] = useState<ConnectorStatusMap>({});
@@ -68,12 +74,10 @@ const ConnectorSettings = () => {
   // Fetch connector status (enabled/disabled)
   const fetchConnectorStatus = useCallback(async (connectorId: string) => {
     try {
-      const response = await axios.get(`/api/v1/connectors/status`, {
-        params: {
-          service: connectorId,
-        },
-      });
-      return response.data?.enabled || false;
+      const response = await axios.get(`/api/v1/connectors/status`);
+      // The status endpoint returns an array of all connectors, find the one we want
+      const connectorStatus = response.data?.find((connector: any) => connector.key === connectorId);
+      return connectorStatus?.isEnabled || false;
     } catch (err) {
       console.error(`Error fetching ${connectorId} status:`, err);
       return false;
@@ -85,13 +89,21 @@ const ConnectorSettings = () => {
     setCheckingConfigs(true);
     try {
       // Check all configurations in parallel
-      const results = await Promise.allSettled([fetchConnectorConfig('googleWorkspace')]);
+      const results = await Promise.allSettled([
+        fetchConnectorConfig('googleWorkspace'),
+        fetchConnectorConfig('atlassian'),
+        fetchConnectorConfig('microsoftWorkspace'),
+      ]);
 
       // Check if the configuration is valid
       const googleConfigured = results[0].status === 'fulfilled' && results[0].value;
+      const atlassianConfigured = results[1].status === 'fulfilled' && results[1].value;
+      const microsoftConfigured = results[2].status === 'fulfilled' && results[2].value;
 
       const newConfigStatus = {
         googleWorkspace: googleConfigured,
+        atlassian: atlassianConfigured,
+        microsoftWorkspace: microsoftConfigured,
       };
 
       setConfiguredStatus(newConfigStatus);
@@ -147,10 +159,23 @@ const ConnectorSettings = () => {
   }, [fetchConnectorStatuses]);
 
   const handleConfigureConnector = (connectorId: string) => {
+    if (connectorId === 'googleWorkspace') {
+      // Restore original navigation to details page for Google Workspace
+      const base = accountType === 'business' || accountType === 'organization'
+        ? '/account/company-settings/connector/googleWorkspace'
+        : '/account/individual/settings/connector/googleWorkspace';
+      navigate(base);
+      return;
+    }
     setCurrentConnector(connectorId);
-    const currentPath = window.location.pathname;
-    const basePath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
-    navigate(`${basePath}${connectorId}`);
+    setConfigDialogOpen(true);
+  };
+
+  const handleSaveConfiguration = () => {
+    setConfigDialogOpen(false);
+    setCurrentConnector(null);
+    // Refresh connector statuses
+    fetchConnectorStatuses();
   };
 
   // Helper to get connector title from ID
@@ -555,6 +580,15 @@ const ConnectorSettings = () => {
           for more information.
         </Typography>
       </Alert>
+
+      {/* Configuration Dialog */}
+      <ConfigureConnectorDialog
+        open={configDialogOpen}
+        onClose={() => setConfigDialogOpen(false)}
+        onSave={handleSaveConfiguration}
+        connectorType={currentConnector}
+        isEnabled={enabledStatus[currentConnector || '']}
+      />
     </Container>
   );
 };

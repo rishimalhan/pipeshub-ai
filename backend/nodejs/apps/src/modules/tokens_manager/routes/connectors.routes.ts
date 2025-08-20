@@ -41,6 +41,8 @@ import {
   setRefreshTokenCredentials,
   getAtlassianOauthConfig,
   setAtlassianOauthConfig,
+  getMicrosoftWorkspaceConfig,
+  setMicrosoftWorkspaceConfig,
 } from '../services/connectors-config.service';
 import { TokenScopes } from '../../../libs/enums/token-scopes.enum';
 import { verifyGoogleWorkspaceToken } from '../utils/verifyToken';
@@ -58,6 +60,7 @@ import { userAdminCheck } from '../../user_management/middlewares/userAdminCheck
 const CONNECTORS = [
   { key: 'googleWorkspace', name: 'Google Workspace' },
   { key: 'atlassian', name: 'Atlassian' },
+  { key: 'microsoftWorkspace', name: 'Microsoft 365' },
 ];
 const logger = Logger.getInstance({
   service: 'Connectors Routes',
@@ -87,12 +90,15 @@ const oAuthConfigSchema = z.object({
     .max(255, 'Client Secret exceeds maximum length of 255 characters'),
   enableRealTimeUpdates: z.union([z.boolean(), z.string()]).optional(),
   topicName: z.string().optional(),
+  // Microsoft-specific optional fields
+  tenantId: z.string().optional(),
+  redirectUri: z.string().optional(),
 });
 
 const oAuthValidationSchema = z.object({
   body: oAuthConfigSchema,
   query: z.object({
-    service: z.enum(['googleWorkspace', 'atlassian']), // Enum validation
+    service: z.enum(['googleWorkspace', 'atlassian', 'microsoftWorkspace']), // Enum validation
   }),
   params: z.object({}),
   headers: z.object({}),
@@ -100,7 +106,7 @@ const oAuthValidationSchema = z.object({
 const ServiceValidationSchema = z.object({
   body: z.object({}),
   query: z.object({
-    service: z.enum(['googleWorkspace', 'atlassian']), // Enum validation
+    service: z.enum(['googleWorkspace', 'atlassian', 'microsoftWorkspace']), // Enum validation
   }),
   params: z.object({}),
   headers: z.object({}),
@@ -320,11 +326,69 @@ export function createConnectorRouter(container: Container) {
             config.scopedJwtSecret,
           );
           if (response.statusCode !== 200) {
+            // If no config exists, return empty object instead of error
+            if (
+              response.data &&
+              typeof response.data === 'object' &&
+              Object.keys(response.data).length === 0
+            ) {
+              res.status(200).json({});
+              return;
+            }
             throw new InternalServerError('Error getting config', response?.data);
           }
           res.status(200).json(response.data);
           return;
-        } else if (service == 'googleWorkspace') {
+        } else if (service === 'microsoftWorkspace') {
+          response = await getMicrosoftWorkspaceConfig(
+            req,
+            config.cmBackend,
+            config.scopedJwtSecret,
+          );
+          if (response.statusCode !== 200) {
+            // If no config exists, return empty object instead of 204
+            if (
+              response.data &&
+              typeof response.data === 'object' &&
+              Object.keys(response.data).length === 0
+            ) {
+              res.status(200).json({});
+              return;
+            }
+            throw new InternalServerError(
+              'Error getting config',
+              response?.data,
+            );
+          }
+          const configData = response.data;
+          if (
+            response.data &&
+            typeof response.data === 'object' &&
+            Object.keys(response.data).length === 0
+          ) {
+            // Return empty object instead of 204
+            res.status(200).json({});
+            return;
+          }
+          if (!configData.clientId) {
+            throw new NotFoundError('Client ID is missing');
+          }
+          if (!configData.clientSecret) {
+            throw new NotFoundError('Client Secret is missing');
+          }
+          if (!configData.tenantId) {
+            throw new NotFoundError('Tenant ID is missing');
+          }
+
+          res.status(200).json({
+            clientId: configData.clientId,
+            clientSecret: configData.clientSecret,
+            tenantId: configData.tenantId,
+            redirectUri: configData.redirectUri,
+            isConfigured: true,
+          });
+          return;
+        } else if (service === 'googleWorkspace') {
           switch (userType.toLowerCase()) {
             case googleWorkspaceTypes.INDIVIDUAL.toLowerCase():
               response = await getGoogleWorkspaceConfig(
@@ -338,7 +402,7 @@ export function createConnectorRouter(container: Container) {
                   typeof response.data === 'object' &&
                   Object.keys(response.data).length === 0
                 ) {
-                  res.status(204).end();
+                  res.status(200).json({});
                   return;
                 }
                 throw new InternalServerError(
@@ -352,7 +416,7 @@ export function createConnectorRouter(container: Container) {
                 typeof response.data === 'object' &&
                 Object.keys(response.data).length === 0
               ) {
-                res.status(204).end();
+                res.status(200).json({});
                 return;
               }
               if (!configData.clientId) {
@@ -395,7 +459,7 @@ export function createConnectorRouter(container: Container) {
                     typeof response.data === 'object' &&
                     Object.keys(response.data).length === 0
                   ) {
-                    res.status(204).end();
+                    res.status(200).json({});
                     return;
                   }
                   throw new InternalServerError(
@@ -437,14 +501,19 @@ export function createConnectorRouter(container: Container) {
             config.cmBackend,
             config.scopedJwtSecret,
           );
+        } else if (service === 'microsoftWorkspace') {
+          response = await setMicrosoftWorkspaceConfig(
+            req,
+            config.cmBackend,
+            config.scopedJwtSecret,
+          );
         } else if (service === 'googleWorkspace') { 
           response = await setGoogleWorkspaceConfig(
             req,
             config.cmBackend,
             config.scopedJwtSecret,
           );
-        }
-        else {
+        } else {
           throw new BadRequestError('Invalid service name');
         }
         if (response?.statusCode !== 200) {

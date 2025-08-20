@@ -1,5 +1,6 @@
 import axios from 'src/utils/axios';
-import { ModelType, ConfiguredModel, ModelData } from '../types';
+
+import type { ModelType, ModelData, ConfiguredModel } from '../types';
 
 export const modelService = {
   // Get all models for a type
@@ -198,7 +199,7 @@ export const modelService = {
 // Export legacy functions for compatibility
 export const { getAllModels, addModel, updateModel, deleteModel, setDefaultModel } = modelService;
 
-export const getLlmConfig = modelService.getLlmConfig;
-export const getEmbeddingConfig = modelService.getEmbeddingConfig;
-export const updateLlmConfig = modelService.updateLlmConfig;
-export const updateEmbeddingConfig = modelService.updateEmbeddingConfig;
+export const {getLlmConfig} = modelService;
+export const {getEmbeddingConfig} = modelService;
+export const {updateLlmConfig} = modelService;
+export const {updateEmbeddingConfig} = modelService;

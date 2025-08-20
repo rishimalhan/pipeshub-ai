@@ -16,8 +16,10 @@ import {
 import { Iconify } from 'src/components/iconify';
 
 import GoogleWorkspaceConfigForm from './google-workspace-config-individual-form';
+import MicrosoftWorkspaceConfigForm from './microsoft-workspace-config-individual-form';
 
 import type { GoogleWorkspaceConfigFormRef } from './google-workspace-config-individual-form';
+import type { MicrosoftWorkspaceConfigFormRef } from './microsoft-workspace-config-individual-form';
 
 // Method configurations
 interface ConnectorConfigType {
@@ -38,6 +40,11 @@ const CONNECTOR_CONFIG: ConnectorConfigType = {
     src: '/assets/icons/connectors/atlassian.svg',
     title: 'Atlassian',
     color: '#0052CC',
+  },
+  microsoftWorkspace: {
+    src: '/assets/icons/connectors/microsoft.svg',
+    title: 'Microsoft 365',
+    color: '#0078D4',
   },
 };
 
@@ -65,6 +72,7 @@ const ConfigureConnectorDialog = ({
   const [isValid, setIsValid] = useState(false);
 
   const googleWorkspaceFormRef = useRef<GoogleWorkspaceConfigFormRef>(null);
+  const microsoftWorkspaceFormRef = useRef<MicrosoftWorkspaceConfigFormRef>(null);
 
   // Get connector config if available
   const connectorConfig = connectorType ? CONNECTOR_CONFIG[connectorType] : null;
@@ -82,6 +90,9 @@ const ConfigureConnectorDialog = ({
     switch (connectorType) {
       case 'googleWorkspace':
         currentRef = googleWorkspaceFormRef;
+        break;
+      case 'microsoftWorkspace':
+        currentRef = microsoftWorkspaceFormRef;
         break;
       default:
         currentRef = null;
@@ -177,6 +188,14 @@ const ConfigureConnectorDialog = ({
                   onValidationChange={handleValidationChange}
                   onSaveSuccess={handleFormSaveSuccess}
                   ref={googleWorkspaceFormRef}
+                  isEnabled={isEnabled || false}
+                />
+              )}
+              {connectorType === 'microsoftWorkspace' && (
+                <MicrosoftWorkspaceConfigForm
+                  onValidationChange={handleValidationChange}
+                  onSaveSuccess={handleFormSaveSuccess}
+                  ref={microsoftWorkspaceFormRef}
                   isEnabled={isEnabled || false}
                 />
               )}

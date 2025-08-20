@@ -1,40 +1,41 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { Icon, IconifyIcon } from '@iconify/react';
-import eyeIcon from '@iconify-icons/mdi/eye-outline';
-import downIcon from '@iconify-icons/mdi/chevron-down';
-import upIcon from '@iconify-icons/mdi/chevron-up';
-import rightIcon from '@iconify-icons/mdi/chevron-right';
-import fileDocIcon from '@iconify-icons/mdi/file-document-outline';
-import folderIcon from '@iconify-icons/mdi/folder-outline';
-import linkIcon from '@iconify-icons/mdi/open-in-new';
-import pdfIcon from '@iconify-icons/vscode-icons/file-type-pdf2';
-import docIcon from '@iconify-icons/vscode-icons/file-type-word';
-import xlsIcon from '@iconify-icons/vscode-icons/file-type-excel';
-import pptIcon from '@iconify-icons/vscode-icons/file-type-powerpoint';
-import txtIcon from '@iconify-icons/vscode-icons/file-type-text';
-import mdIcon from '@iconify-icons/vscode-icons/file-type-markdown';
-import htmlIcon from '@iconify-icons/vscode-icons/file-type-html';
-import jsonIcon from '@iconify-icons/vscode-icons/file-type-json';
-import zipIcon from '@iconify-icons/vscode-icons/file-type-zip';
-import imageIcon from '@iconify-icons/vscode-icons/file-type-image';
+import type { IconifyIcon } from '@iconify/react';
+import type { Record } from 'src/types/chat-message';
+import type { CustomCitation } from 'src/types/chat-bot';
+
+import { Icon } from '@iconify/react';
 import boxIcon from '@iconify-icons/mdi/box';
 import jiraIcon from '@iconify-icons/mdi/jira';
 import gmailIcon from '@iconify-icons/mdi/gmail';
 import slackIcon from '@iconify-icons/mdi/slack';
+import upIcon from '@iconify-icons/mdi/chevron-up';
+import eyeIcon from '@iconify-icons/mdi/eye-outline';
 import dropboxIcon from '@iconify-icons/mdi/dropbox';
+import linkIcon from '@iconify-icons/mdi/open-in-new';
+import downIcon from '@iconify-icons/mdi/chevron-down';
 import databaseIcon from '@iconify-icons/mdi/database';
+import rightIcon from '@iconify-icons/mdi/chevron-right';
+import folderIcon from '@iconify-icons/mdi/folder-outline';
+import confluenceIcon from '@iconify-icons/logos/confluence';
+import React, { useMemo, useState, useCallback } from 'react';
 import googleDriveIcon from '@iconify-icons/mdi/google-drive';
 import cloudUploadIcon from '@iconify-icons/mdi/cloud-upload';
+import zipIcon from '@iconify-icons/vscode-icons/file-type-zip';
+import pdfIcon from '@iconify-icons/vscode-icons/file-type-pdf2';
+import docIcon from '@iconify-icons/vscode-icons/file-type-word';
+import txtIcon from '@iconify-icons/vscode-icons/file-type-text';
+import xlsIcon from '@iconify-icons/vscode-icons/file-type-excel';
+import htmlIcon from '@iconify-icons/vscode-icons/file-type-html';
+import jsonIcon from '@iconify-icons/vscode-icons/file-type-json';
+import fileDocIcon from '@iconify-icons/mdi/file-document-outline';
+import mdIcon from '@iconify-icons/vscode-icons/file-type-markdown';
+import imageIcon from '@iconify-icons/vscode-icons/file-type-image';
 import microsoftTeamsIcon from '@iconify-icons/mdi/microsoft-teams';
+import pptIcon from '@iconify-icons/vscode-icons/file-type-powerpoint';
 import microsoftOutlookIcon from '@iconify-icons/mdi/microsoft-outlook';
 import microsoftOnedriveIcon from '@iconify-icons/mdi/microsoft-onedrive';
 import microsoftSharepointIcon from '@iconify-icons/mdi/microsoft-sharepoint';
-import confluenceIcon from '@iconify-icons/logos/confluence';
 
-import { Box, Paper, Stack, Button, Collapse, Typography, alpha, useTheme } from '@mui/material';
-
-import type { CustomCitation } from 'src/types/chat-bot';
-import type { Record } from 'src/types/chat-message';
+import { Box, Paper, Stack, alpha, Button, Collapse, useTheme, Typography } from '@mui/material';
 
 // File type configuration with modern icons
 const FILE_CONFIG = {

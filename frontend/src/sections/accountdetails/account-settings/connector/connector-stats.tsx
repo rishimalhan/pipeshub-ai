@@ -1,25 +1,12 @@
-import type { IconifyIcon } from '@iconify/react';
 
-import boxIcon from '@iconify-icons/mdi/box';
-import jiraIcon from '@iconify-icons/mdi/jira';
 import syncIcon from '@iconify-icons/mdi/sync';
-import gmailIcon from '@iconify-icons/mdi/gmail';
-import slackIcon from '@iconify-icons/mdi/slack';
-import dropboxIcon from '@iconify-icons/mdi/dropbox';
 import refreshIcon from '@iconify-icons/mdi/refresh';
-import databaseIcon from '@iconify-icons/mdi/database';
-import googleDriveIcon from '@iconify-icons/mdi/google-drive';
-import cloudUploadIcon from '@iconify-icons/mdi/cloud-upload';
 import clockOutlineIcon from '@iconify-icons/mdi/clock-outline';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import progressClockIcon from '@iconify-icons/mdi/progress-clock';
-import microsoftTeamsIcon from '@iconify-icons/mdi/microsoft-teams';
-import microsoftOutlookIcon from '@iconify-icons/mdi/microsoft-outlook';
-import microsoftOnedriveIcon from '@iconify-icons/mdi/microsoft-onedrive';
 import fileCancelOutlineIcon from '@iconify-icons/mdi/file-cancel-outline';
 import checkCircleOutlineIcon from '@iconify-icons/mdi/check-circle-outline';
 import alertCircleOutlineIcon from '@iconify-icons/mdi/alert-circle-outline';
-import microsoftSharepointIcon from '@iconify-icons/mdi/microsoft-sharepoint';
 
 import { alpha, useTheme } from '@mui/material/styles';
 import {

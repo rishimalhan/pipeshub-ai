@@ -1,46 +1,45 @@
 // src/sections/agents/components/template-selector.tsx
-import React, { useState, useMemo } from 'react';
+import type { AgentTemplate } from 'src/types/agent';
+
+import { Icon } from '@iconify/react';
+import cogIcon from '@iconify-icons/mdi/cog';
+import React, { useMemo, useState } from 'react';
+import closeIcon from '@iconify-icons/mdi/close';
+import editIcon from '@iconify-icons/mdi/pencil';
+import brainIcon from '@iconify-icons/mdi/brain';
+import deleteIcon from '@iconify-icons/mdi/delete';
+import searchIcon from '@iconify-icons/mdi/magnify';
+import accountIcon from '@iconify-icons/mdi/account';
+import sparklesIcon from '@iconify-icons/mdi/auto-awesome';
+import templateIcon from '@iconify-icons/mdi/file-document';
+import moreVertIcon from '@iconify-icons/mdi/dots-vertical';
+
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Box,
   Grid,
   Card,
-  CardContent,
-  Typography,
-  Button,
-  TextField,
-  InputAdornment,
   Chip,
-  IconButton,
-  useTheme,
-  alpha,
-  Avatar,
-  Divider,
   Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
+  alpha,
   Paper,
   Stack,
-  Tooltip,
+  Dialog,
+  Button,
+  Avatar,
+  Divider,
+  useTheme,
+  MenuItem,
+  TextField,
+  Typography,
+  IconButton,
+  DialogTitle,
+  CardContent,
+  ListItemIcon,
+  ListItemText,
+  DialogContent,
+  InputAdornment,
 } from '@mui/material';
-import { Icon } from '@iconify/react';
-import closeIcon from '@iconify-icons/mdi/close';
-import searchIcon from '@iconify-icons/mdi/magnify';
-import templateIcon from '@iconify-icons/mdi/file-document';
-import starIcon from '@iconify-icons/mdi/star';
-import accountIcon from '@iconify-icons/mdi/account';
-import moreVertIcon from '@iconify-icons/mdi/dots-vertical';
-import editIcon from '@iconify-icons/mdi/pencil';
-import deleteIcon from '@iconify-icons/mdi/delete';
-import brainIcon from '@iconify-icons/mdi/brain';
-import toolIcon from '@iconify-icons/mdi/tools';
-import databaseIcon from '@iconify-icons/mdi/database';
-import cogIcon from '@iconify-icons/mdi/cog';
-import sparklesIcon from '@iconify-icons/mdi/auto-awesome';
-import type { AgentTemplate } from 'src/types/agent';
+
 import { TEMPLATE_CATEGORIES } from '../utils/agent-utils';
 import {createScrollableContainerStyle} from '../../chatbot/utils/styles/scrollbar';
 

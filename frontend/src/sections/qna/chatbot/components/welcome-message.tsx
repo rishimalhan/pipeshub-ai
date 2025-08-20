@@ -12,7 +12,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import ChatInput, { Model, ChatMode } from './chat-input';
+import ChatInput from './chat-input';
+
+import type { Model, ChatMode } from './chat-input';
 
 // Simple Footer component
 const Footer = memo(({ isDark }: { isDark: boolean }) => {

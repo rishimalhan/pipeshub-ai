@@ -2,35 +2,39 @@
 // 📁 Enhanced Main Settings with Perfect UX Flow
 // ===================================================================
 
+import robotIcon from '@iconify-icons/mdi/robot';
 import React, { useState, useEffect } from 'react';
+import checkCircleIcon from '@iconify-icons/mdi/check-circle';
+
 import {
   Box,
-  Container,
-  Paper,
-  Typography,
-  Alert,
-  Snackbar,
-  Divider,
-  alpha,
-  useTheme,
   Fade,
+  Paper,
+  Alert,
+  alpha,
+  Divider,
+  Snackbar,
+  useTheme,
   Skeleton,
+  Container,
+  Typography,
 } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
-import robotIcon from '@iconify-icons/mdi/robot';
-import checkCircleIcon from '@iconify-icons/mdi/check-circle';
-import alertCircleIcon from '@iconify-icons/mdi/alert-circle';
+
 import { 
-  AVAILABLE_MODEL_PROVIDERS, 
-  ConfiguredModel, 
-  ModelProvider, 
-  ModelType 
+  AVAILABLE_MODEL_PROVIDERS 
 } from './types';
+import { modelService } from './services/universal-config';
 import ProviderCards from './components/available-models-card';
 import ModelConfigurationDialog from './components/configure-model-dialog';
 import ConfiguredModelsDisplay from './components/configured-models-display';
-import { modelService } from './services/universal-config';
+
+import type { 
+  ModelType, 
+  ModelProvider, 
+  ConfiguredModel 
+} from './types';
 
 const AiModelsSettings: React.FC = () => {
   const theme = useTheme();
