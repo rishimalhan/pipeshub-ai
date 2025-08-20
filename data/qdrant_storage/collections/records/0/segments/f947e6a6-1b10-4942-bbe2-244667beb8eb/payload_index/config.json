@@ -1,1 +1,0 @@
-{"indexed_fields":{"metadata.orgId":{"type":"keyword"},"metadata.virtualRecordId":{"type":"keyword"}},"skip_rocksdb":null}
