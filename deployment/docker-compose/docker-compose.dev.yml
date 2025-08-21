@@ -10,7 +10,7 @@ services:
       - "8088:8088"
       - "3000:3000"
       - "8001:8000"
-      - "80:3000"
+
     environment:
       # Core environment settings
       - NODE_ENV=${NODE_ENV:-development}
@@ -19,10 +19,7 @@ services:
 
       # Security settings - allow override with custom secret
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
-      - JWT_ALGORITHM=HS256
-      - SECRET_KEYS=["your_random_encryption_secret_key"]   # JSON array
-      - SCOPED_JWT_SECRET=your_random_encryption_secret_key
-
+      
       # Public endpoints
       - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
       - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-https://orisonenterprise.ngrok.app}
