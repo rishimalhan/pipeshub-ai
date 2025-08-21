@@ -1,6 +1,6 @@
 services:
   pipeshub-ai:
-    image: pipeshub-ai:latest
+    # image: pipeshub-ai:latest
     restart: always
     build:
       context: ../../
@@ -20,8 +20,8 @@ services:
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
 
       # Public endpoints
-      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-}
-      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-}
+      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
+      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-https://orisonenterprise.ngrok.app}
 
       # Internal service URLs
       - QUERY_BACKEND=http://localhost:8000
@@ -75,6 +75,7 @@ services:
     volumes:
       - pipeshub_data:/data/pipeshub
       - pipeshub_root_local:/root/.local
+      - ../../frontend:/app/frontend
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
