@@ -19,6 +19,9 @@ services:
 
       # Security settings - allow override with custom secret
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
+      - JWT_ALGORITHM=HS256
+      - SECRET_KEYS=["your_random_encryption_secret_key"]   # JSON array
+      - SCOPED_JWT_SECRET=your_random_encryption_secret_key
 
       # Public endpoints
       - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
