@@ -329,6 +329,12 @@ export class Application {
       createConnectorRouter(this.tokenManagerContainer),
     );
 
+    // streaming route
+    this.app.use(
+      '/api/v1/stream',
+      createStreamRouter(this.knowledgeBaseContainer),
+    );
+
     // knowledge base routes
     this.app.use(
       '/api/v1/knowledgeBase',
@@ -350,11 +356,6 @@ export class Application {
     this.app.use(
       '/api/v1/crawlingManager',
       createCrawlingManagerRouter(this.crawlingManagerContainer),
-    );
-
-    this.app.use(
-      '/api/v1/stream',
-      createStreamRouter(this.knowledgeBaseContainer),
     );
   }
 
