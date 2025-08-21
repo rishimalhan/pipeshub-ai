@@ -91,7 +91,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
     volumes:
-      - ../../data/mongodb_data:/data/db
+      - mongodb_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s
@@ -108,7 +108,7 @@ services:
     command: >
       ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
     volumes:
-      - ../../data/redis_data:/data
+      - redis_data:/data
 
   arango:
     image: arangodb:3.12.4
@@ -118,7 +118,7 @@ services:
     environment:
       - ARANGO_ROOT_PASSWORD=${ARANGO_PASSWORD:-your_password}
     volumes:
-      - ../../data/arango_data:/var/lib/arangodb3
+      - arango_data:/var/lib/arangodb3
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8529/_api/version"]
       interval: 5s
@@ -141,7 +141,7 @@ services:
       --initial-advertise-peer-urls http://0.0.0.0:2380
       --initial-cluster etcd-node=http://0.0.0.0:2380
     volumes:
-      - ../../data/etcd_data:/etcd-data
+      - etcd_data:/etcd-data
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.9.0
@@ -183,7 +183,7 @@ services:
     environment:
       - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-your_qdrant_secret_api_key}
     volumes:
-      - ../../data/qdrant_storage:/qdrant/storage
+      - qdrant_storage:/qdrant/storage
     ulimits:
       nofile:
         soft: 50000
