@@ -23,6 +23,8 @@ services:
       # Public endpoints
       - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
       - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-https://orisonenterprise.ngrok.app}
+      - GOOGLE_REDIRECT_URI=https://orisonenterprise.ngrok.app/api/v1/connectors/googleWorkspace/oauth2/callback
+      - ALLOWED_ORIGINS=https://orisonenterprise.ngrok.app
 
       # Internal service URLs
       - QUERY_BACKEND=http://localhost:8000
