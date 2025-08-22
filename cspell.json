@@ -6,15 +6,23 @@
     "words": [
         "aiconfig",
         "aimodels",
+        "APIHTTP",
         "arangodb",
         "asimilarity",
         "BAAI",
+        "cascadingselectsearcher",
+        "customfieldtypes",
+        "daterange",
         "dependency_injector",
         "docparser",
         "dotenv",
+        "exactnumber",
+        "exacttextsearcher",
+        "grouppickersearcher",
         "Qdrant",
         "reranker",
-        "vectordb"
+        "vectordb",
+        "webresource"
     ],
     "ignoreWords": [],
     "import": []
