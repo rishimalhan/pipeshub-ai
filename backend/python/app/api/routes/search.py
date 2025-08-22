@@ -18,19 +18,19 @@ router = APIRouter()
 # Pydantic models
 class SearchQuery(BaseModel):
     query: str
-    limit: Optional[int] = 5
+    limit: Optional[int] = 50
     filters: Optional[Dict[str, Any]] = {}
 
 
 class SimilarDocumentQuery(BaseModel):
     document_id: str
-    limit: Optional[int] = 5
+    limit: Optional[int] = 50
     filters: Optional[Dict[str, Any]] = None
 
 
 class SearchRequest(BaseModel):
     query: str
-    topK: int = 20
+    topK: int = 50
     filtersV1: List[Dict[str, List[str]]]
 
 
@@ -59,7 +59,7 @@ async def search(
     body: SearchQuery,
     retrieval_service: RetrievalService = Depends(get_retrieval_service),
     arango_service: ArangoService = Depends(get_arango_service),
-)-> JSONResponse :
+) -> JSONResponse:
     """Perform semantic search across documents"""
     try:
         container = request.app.container
@@ -74,7 +74,7 @@ async def search(
                 )
 
         # Extract KB IDs from filters if present
-        kb_ids = body.filters.get('kb') if body.filters else None
+        kb_ids = body.filters.get("kb") if body.filters else None
         updated_filters = body.filters
         # Validate KB IDs if provided
         if kb_ids:
@@ -84,7 +84,7 @@ async def search(
             kb_validation = await arango_service.validate_user_kb_access(
                 user_id=request.state.user.get("userId"),
                 org_id=request.state.user.get("orgId"),
-                kb_ids=kb_ids
+                kb_ids=kb_ids,
             )
 
             accessible_kbs = kb_validation.get("accessible", [])
@@ -100,8 +100,8 @@ async def search(
                         "status": "ACCESS_DENIED",
                         "status_code": 403,
                         "message": "You don't have access to any of the specified knowledge bases.",
-                        "inaccessible_kbs": inaccessible_kbs
-                    }
+                        "inaccessible_kbs": inaccessible_kbs,
+                    },
                 )
 
             if inaccessible_kbs:
@@ -109,11 +109,8 @@ async def search(
 
             # Update filters with only accessible KBs
             updated_filters = body.filters.copy() if body.filters else {}
-            updated_filters['kb'] = accessible_kbs
+            updated_filters["kb"] = accessible_kbs
             logger.info(f"✅ Using accessible KBs for search: {accessible_kbs}")
-
-
-
 
         # Setup query transformation
         rewrite_chain, expansion_chain = setup_query_transformation(llm)
@@ -149,7 +146,7 @@ async def search(
                 "accessible_kbs": accessible_kbs,
                 "inaccessible_kbs": inaccessible_kbs,
                 "total_requested": len(kb_ids),
-                "total_accessible": len(accessible_kbs)
+                "total_accessible": len(accessible_kbs),
             }
 
         logger.info(f"Results: {results}")
