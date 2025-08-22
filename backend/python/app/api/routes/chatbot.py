@@ -81,12 +81,12 @@ def get_model_config_for_mode(chat_mode: str) -> Dict[str, Any]:
         },
         "analysis": {
             "temperature": 0.3,
-            "max_tokens": 64000,
+            "max_tokens": 32000,
             "system_prompt": "You are an analytical assistant. Provide detailed analysis with insights and patterns.",
         },
         "deep_research": {
             "temperature": 0.2,
-            "max_tokens": 64000,
+            "max_tokens": 32000,
             "system_prompt": "You are a research assistant. Provide comprehensive, well-sourced answers with detailed explanations.",
         },
         "creative": {
@@ -101,7 +101,7 @@ def get_model_config_for_mode(chat_mode: str) -> Dict[str, Any]:
         },
         "standard": {
             "temperature": 0.2,
-            "max_tokens": 12000,
+            "max_tokens": 8192,
             "system_prompt": "You are an enterprise questions answering expert",
         },
     }
