@@ -59,7 +59,7 @@ const Footer = memo(({ isDark }: { isDark: boolean }) => {
             color: 'inherit',
           }}
         />
-        pipeshub-ai
+        orison-ai
       </Link>
     </Box>
   );
