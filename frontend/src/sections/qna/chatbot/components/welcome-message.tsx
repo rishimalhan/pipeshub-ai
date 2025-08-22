@@ -145,7 +145,7 @@ const WelcomeMessageComponent = ({
             WebkitTextFillColor: 'transparent',
           }}
         >
-          PipesHub AI
+          Orison Enterprise AI
         </Typography>
 
         <Typography
