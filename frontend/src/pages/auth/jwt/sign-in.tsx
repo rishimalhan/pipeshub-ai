@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <>
       <Helmet>
-        <title> {metadata.title} </title>
+        <title> Orison AI </title>
       </Helmet>
       <AuthenticationView />
     </>
