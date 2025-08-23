@@ -18,7 +18,7 @@ import OnBoardingStepper from '../configuration-stepper/components/stepper';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Orison AI` };
+const metadata = { title: `Ask me anything` };
 
 // Wrapper component to access auth context
 function PageContent() {

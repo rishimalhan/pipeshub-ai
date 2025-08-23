@@ -595,7 +595,7 @@ export default function CompanyProfile() {
                         variant="body2"
                         sx={{ color: theme.palette.text.secondary, mb: 1 }}
                       >
-                        PipesHub collects and processes personal information for a variety of
+                        Orison collects and processes personal information for a variety of
                         business purposes.
                       </Typography>
 
