@@ -17,6 +17,10 @@ class HTTPClient(IClient):
         """Get the client"""
         return self
 
+    def get_base_url(self) -> str:
+        """Get the base URL"""
+        return self.base_url
+
     async def _ensure_session(self) -> aiohttp.ClientSession:
         """Ensure session is created and available"""
         if self.session is None:
@@ -41,7 +45,6 @@ class HTTPClient(IClient):
             request_kwargs["json"] = request.body
         elif isinstance(request.body, bytes):
             request_kwargs["data"] = request.body
-
         async with session.request(request.method, url, **request_kwargs) as response:
             response_bytes = await response.read()
             return HTTPResponse(response_bytes, response)
