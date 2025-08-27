@@ -16,6 +16,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
 
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-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}
+      - LANGCHAIN_TRACING=${LANGCHAIN_TRACING:-true}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-orison_ai}
+
       # Security settings - allow override with custom secret
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
 
