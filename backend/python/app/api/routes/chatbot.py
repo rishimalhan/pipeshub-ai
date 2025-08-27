@@ -353,6 +353,7 @@ async def askAIStream(
             yield create_sse_event("status", {"status": "generating", "message": "Generating AI response..."})
 
             # Stream LLM response with real-time answer updates
+            logger.info("LLM prompt (stream): %s", messages)
             async for stream_event in stream_llm_response(llm, messages, final_results):
                 event_type = stream_event["event"]
                 event_data = stream_event["data"]
@@ -545,6 +546,7 @@ async def askAI(
         # Add current query with context
         messages.append({"role": "user", "content": rendered_form})
         # Make async LLM call
+        logger.info("LLM prompt: %s", messages)
         response = await llm.ainvoke(messages)
         # Process citations and return response
         return process_citations(response, final_results)

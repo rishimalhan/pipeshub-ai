@@ -18,7 +18,7 @@ import OnBoardingStepper from '../configuration-stepper/components/stepper';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Ask Me Anything` };
+const metadata = { title: `Ask me anything` };
 
 // Wrapper component to access auth context
 function PageContent() {

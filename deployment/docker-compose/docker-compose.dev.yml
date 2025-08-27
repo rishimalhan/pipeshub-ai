@@ -1,6 +1,6 @@
 services:
   pipeshub-ai:
-    image: pipeshub-ai:latest
+    # image: pipeshub-ai:latest
     restart: always
     build:
       context: ../../
@@ -16,12 +16,17 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
 
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-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}
+      - LANGCHAIN_TRACING=${LANGCHAIN_TRACING:-true}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-orison_ai}
+
       # Security settings - allow override with custom secret
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
 
       # Public endpoints
-      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-}
-      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-}
+      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
+      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-https://orisonenterprise.ngrok.app}
 
       # Internal service URLs
       - QUERY_BACKEND=http://localhost:8000
@@ -75,6 +80,7 @@ services:
     volumes:
       - pipeshub_data:/data/pipeshub
       - pipeshub_root_local:/root/.local
+      - ../../frontend:/app/frontend
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
