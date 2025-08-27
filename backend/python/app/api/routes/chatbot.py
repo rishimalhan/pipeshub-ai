@@ -36,12 +36,8 @@ class ChatQuery(BaseModel):
     quickMode: Optional[bool] = False
     # New fields for multi-model support
     modelKey: Optional[str] = None  # e.g., "uuid-of-the-model"
-    modelName: Optional[str] = (
-        None  # e.g., "gpt-4o-mini", "claude-3-5-sonnet", "llama3.2"
-    )
-    chatMode: Optional[str] = (
-        "standard"  # "quick", "analysis", "deep_research", "creative", "precise"
-    )
+    modelName: Optional[str] = None  # e.g., "gpt-4o-mini", "claude-3-5-sonnet", "llama3.2"
+    chatMode: Optional[str] = "standard"  # "quick", "analysis", "deep_research", "creative", "precise"
 
 
 async def get_retrieval_service(request: Request) -> RetrievalService:
@@ -74,44 +70,43 @@ def get_model_config_for_mode(chat_mode: str) -> Dict[str, Any]:
         "quick": {
             "temperature": 0.1,
             "max_tokens": 1000,
-            "system_prompt": "You are a concise assistant. Provide brief, accurate answers.",
+            "system_prompt": "You are a concise assistant. Provide brief, accurate answers."
         },
         "analysis": {
             "temperature": 0.3,
             "max_tokens": 2000,
-            "system_prompt": "You are an analytical assistant. Provide detailed analysis with insights and patterns.",
+            "system_prompt": "You are an analytical assistant. Provide detailed analysis with insights and patterns."
         },
         "deep_research": {
             "temperature": 0.2,
             "max_tokens": 4000,
-            "system_prompt": "You are a research assistant. Provide comprehensive, well-sourced answers with detailed explanations.",
+            "system_prompt": "You are a research assistant. Provide comprehensive, well-sourced answers with detailed explanations."
         },
         "creative": {
             "temperature": 0.7,
             "max_tokens": 3000,
-            "system_prompt": "You are a creative assistant. Provide innovative and imaginative responses while staying relevant.",
+            "system_prompt": "You are a creative assistant. Provide innovative and imaginative responses while staying relevant."
         },
         "precise": {
             "temperature": 0.05,
             "max_tokens": 1500,
-            "system_prompt": "You are a precise assistant. Provide accurate, factual answers with high attention to detail.",
+            "system_prompt": "You are a precise assistant. Provide accurate, factual answers with high attention to detail."
         },
         "standard": {
             "temperature": 0.2,
             "max_tokens": 2000,
-            "system_prompt": "You are an enterprise questions answering expert",
-        },
+            "system_prompt": "You are an enterprise questions answering expert"
+        }
     }
 
     return mode_configs.get(chat_mode, mode_configs["standard"])
 
-
-async def get_model_config(
-    config_service: ConfigurationService, model_key: str
-) -> Dict[str, Any]:
+async def get_model_config(config_service: ConfigurationService, model_key: str) -> Dict[str, Any]:
     """Get model configuration based on user selection or fallback to default"""
 
-    ai_models = await config_service.get_config(config_node_constants.AI_MODELS.value)
+    ai_models = await config_service.get_config(
+            config_node_constants.AI_MODELS.value
+        )
     llm_configs = ai_models["llm"]
 
     for config in llm_configs:
@@ -120,7 +115,8 @@ async def get_model_config(
             return config
 
     new_ai_models = await config_service.get_config(
-        config_node_constants.AI_MODELS.value, use_cache=False
+        config_node_constants.AI_MODELS.value,
+        use_cache=False
     )
 
     llm_configs = new_ai_models["llm"]
@@ -136,13 +132,7 @@ async def get_model_config(
     # If user specified a model, try to find it
     return llm_configs
 
-
-async def get_llm_for_chat(
-    config_service: ConfigurationService,
-    model_key: str = None,
-    model_name: str = None,
-    chat_mode: str = "standard",
-) -> BaseChatModel:
+async def get_llm_for_chat(config_service: ConfigurationService, model_key: str = None, model_name: str = None, chat_mode: str = "standard") -> BaseChatModel:
     """Get LLM instance based on user selection or fallback to default"""
     try:
         llm_config = await get_model_config(config_service, model_key)
@@ -152,19 +142,15 @@ async def get_llm_for_chat(
         # If user specified a model, try to find it
         if model_key and model_name:
             model_string = llm_config.get("configuration", {}).get("model")
-            model_names = [
-                name.strip() for name in model_string.split(",") if name.strip()
-            ]
-            if llm_config.get("modelKey") == model_key and model_name in model_names:
+            model_names = [name.strip() for name in model_string.split(",") if name.strip()]
+            if (llm_config.get("modelKey") == model_key and model_name in model_names):
                 model_provider = llm_config.get("provider")
                 return get_generator_model(model_provider, llm_config, model_name)
 
         # If user specified only provider, find first matching model
         if model_key:
             model_string = llm_config.get("configuration", {}).get("model")
-            model_names = [
-                name.strip() for name in model_string.split(",") if name.strip()
-            ]
+            model_names = [name.strip() for name in model_string.split(",") if name.strip()]
             default_model_name = model_names[0]
             model_provider = llm_config.get("provider")
             return get_generator_model(model_provider, llm_config, default_model_name)
@@ -179,7 +165,7 @@ async def get_llm_for_chat(
         return get_generator_model(model_provider, llm_config, default_model_name)
 
     except Exception as e:
-        raise ValueError(f"Failed to initialize LLM: {str(e)}")
+            raise ValueError(f"Failed to initialize LLM: {str(e)}")
 
 
 @router.post("/chat/stream")
@@ -193,43 +179,30 @@ async def askAIStream(
 ) -> StreamingResponse:
     """Perform semantic search across documents with streaming events"""
     query_info = ChatQuery(**(await request.json()))
-
     async def generate_stream() -> AsyncGenerator[str, None]:
         try:
             container = request.app.container
             logger = container.logger()
             # Send initial event
-            yield create_sse_event(
-                "status", {"status": "started", "message": "Starting AI processing..."}
-            )
+            yield create_sse_event("status", {"status": "started", "message": "Starting AI processing..."})
 
             # Get LLM based on user selection or fallback to default
             llm = await get_llm_for_chat(
                 config_service,
                 query_info.modelKey,
                 query_info.modelName,
-                query_info.chatMode,
+                query_info.chatMode
             )
 
             if llm is None:
-                yield create_sse_event(
-                    "error", {"error": "Failed to initialize LLM service"}
-                )
+                yield create_sse_event("error", {"error": "Failed to initialize LLM service"})
                 return
 
             # Send LLM initialized event
-            yield create_sse_event(
-                "status", {"status": "llm_ready", "message": "LLM service initialized"}
-            )
+            yield create_sse_event("status", {"status": "llm_ready", "message": "LLM service initialized"})
 
             if len(query_info.previousConversations) > 0:
-                yield create_sse_event(
-                    "status",
-                    {
-                        "status": "processing",
-                        "message": "Processing conversation history...",
-                    },
-                )
+                yield create_sse_event("status", {"status": "processing", "message": "Processing conversation history..."})
 
                 followup_query_transformation = setup_followup_query_transformation(llm)
                 formatted_history = "\n".join(
@@ -237,37 +210,23 @@ async def askAIStream(
                     for conv in query_info.previousConversations
                 )
 
-                followup_query = await followup_query_transformation.ainvoke(
-                    {
-                        "query": query_info.query,
-                        "previous_conversations": formatted_history,
-                    }
-                )
+                followup_query = await followup_query_transformation.ainvoke({
+                    "query": query_info.query,
+                    "previous_conversations": formatted_history
+                })
                 query_info.query = followup_query
 
-                yield create_sse_event(
-                    "query_transformed",
-                    {
-                        "original_query": query_info.query,
-                        "transformed_query": followup_query,
-                    },
-                )
+                yield create_sse_event("query_transformed", {"original_query": query_info.query, "transformed_query": followup_query})
 
             # Query decomposition based on mode
-            yield create_sse_event(
-                "status", {"status": "decomposing", "message": "Decomposing query..."}
-            )
+            yield create_sse_event("status", {"status": "decomposing", "message": "Decomposing query..."})
 
             decomposed_queries = []
 
             # Skip decomposition for quick mode or if explicitly disabled
             if not query_info.quickMode and query_info.chatMode != "quick":
-                decomposition_service = QueryDecompositionExpansionService(
-                    llm, logger=logger
-                )
-                decomposition_result = await decomposition_service.transform_query(
-                    query_info.query
-                )
+                decomposition_service = QueryDecompositionExpansionService(llm, logger=logger)
+                decomposition_result = await decomposition_service.transform_query(query_info.query)
                 decomposed_queries = decomposition_result["queries"]
 
             if not decomposed_queries:
@@ -278,71 +237,45 @@ async def askAIStream(
             yield create_sse_event("query_decomposed", {"queries": all_queries})
 
             # Execute all query processing in parallel
-            org_id = request.state.user.get("orgId")
-            user_id = request.state.user.get("userId")
-            send_user_info = request.query_params.get("sendUserInfo", True)
+            org_id = request.state.user.get('orgId')
+            user_id = request.state.user.get('userId')
+            send_user_info = request.query_params.get('sendUserInfo', True)
 
             # Process queries and yield status updates
-            yield create_sse_event(
-                "status",
-                {
-                    "status": "parallel_processing",
-                    "message": f"Processing {len(all_queries)} queries in parallel...",
-                },
-            )
+            yield create_sse_event("status", {"status": "parallel_processing", "message": f"Processing {len(all_queries)} queries in parallel..."})
 
             # Send individual query processing updates
             for i, query in enumerate(all_queries):
-                yield create_sse_event(
-                    "transformed_query",
-                    {"status": "transforming", "query": query, "index": i + 1},
+                yield create_sse_event("transformed_query", {"status": "transforming", "query": query, "index": i+1})
+
+            yield create_sse_event("status", {"status": "searching", "message": "Executing searches..."})
+            result = await retrieval_service.search_with_filters(
+                    queries=all_queries,
+                    org_id=org_id,
+                    user_id=user_id,
+                    limit=query_info.limit,
+                    filter_groups=query_info.filters,
+                    arango_service=arango_service,
                 )
 
-            yield create_sse_event(
-                "status", {"status": "searching", "message": "Executing searches..."}
-            )
-            result = await retrieval_service.search_with_filters(
-                queries=all_queries,
-                org_id=org_id,
-                user_id=user_id,
-                limit=query_info.limit,
-                filter_groups=query_info.filters,
-                arango_service=arango_service,
-            )
-
-            yield create_sse_event(
-                "search_complete",
-                {"results_count": len(result.get("searchResults", []))},
-            )
+            yield create_sse_event("search_complete", {"results_count": len(result.get("searchResults", []))})
 
             # Flatten and deduplicate results
-            yield create_sse_event(
-                "status",
-                {
-                    "status": "deduplicating",
-                    "message": "Deduplicating search results...",
-                },
-            )
+            yield create_sse_event("status", {"status": "deduplicating", "message": "Deduplicating search results..."})
 
             flattened_results = []
             seen_ids = set()
             result_set = result.get("searchResults", [])
             status_code = result.get("status_code", 500)
             if status_code in [202, 500, 503]:
-                logger.warn(
-                    f"AI service returned an error status code: {status_code}",
-                    {
-                        "status": result.get("status", "error"),
-                        "message": result.get("message", "No results found"),
-                    },
-                )
-                yield create_sse_event(
-                    "error",
-                    {
-                        "status": result.get("status", "error"),
-                        "message": result.get("message", "No results found"),
-                    },
-                )
+                logger.warn(f"AI service returned an error status code: {status_code}", {
+                    "status": result.get("status", "error"),
+                    "message": result.get("message", "No results found")
+                })
+                yield create_sse_event("error", {
+                    "status": result.get("status", "error"),
+                    "message": result.get("message", "No results found")
+                })
                 return
 
             for result in result_set:
@@ -351,23 +284,11 @@ async def askAIStream(
                     seen_ids.add(result_id)
                     flattened_results.append(result)
 
-            yield create_sse_event(
-                "results_ready", {"total_results": len(flattened_results)}
-            )
+            yield create_sse_event("results_ready", {"total_results": len(flattened_results)})
 
             # Re-rank results based on mode
-            if (
-                len(flattened_results) > 1
-                and not query_info.quickMode
-                and query_info.chatMode != "quick"
-            ):
-                yield create_sse_event(
-                    "status",
-                    {
-                        "status": "reranking",
-                        "message": "Reranking results for better relevance...",
-                    },
-                )
+            if len(flattened_results) > 1 and not query_info.quickMode and query_info.chatMode != "quick":
+                yield create_sse_event("status", {"status": "reranking", "message": "Reranking results for better relevance..."})
                 final_results = await reranker_service.rerank(
                     query=query_info.query,
                     documents=flattened_results,
@@ -378,23 +299,15 @@ async def askAIStream(
 
             # Prepare user context
             if send_user_info:
-                yield create_sse_event(
-                    "status",
-                    {
-                        "status": "preparing_context",
-                        "message": "Preparing user context...",
-                    },
-                )
+                yield create_sse_event("status", {"status": "preparing_context", "message": "Preparing user context..."})
 
                 user_info = await arango_service.get_user_by_user_id(user_id)
-                org_info = await arango_service.get_document(
-                    org_id, CollectionNames.ORGS.value
-                )
+                org_info = await arango_service.get_document(org_id, CollectionNames.ORGS.value)
 
-                if org_info is not None and (
+                if (org_info is not None and (
                     org_info.get("accountType") == AccountType.ENTERPRISE.value
                     or org_info.get("accountType") == AccountType.BUSINESS.value
-                ):
+                )):
                     user_data = (
                         "I am the user of the organization. "
                         f"My name is {user_info.get('fullName', 'a user')} "
@@ -424,25 +337,20 @@ async def askAIStream(
                 chunks=final_results,
             )
 
-            messages = [{"role": "system", "content": mode_config["system_prompt"]}]
+            messages = [
+                {"role": "system", "content": mode_config["system_prompt"]}
+            ]
 
             # Add conversation history
             for conversation in query_info.previousConversations:
                 if conversation.get("role") == "user_query":
-                    messages.append(
-                        {"role": "user", "content": conversation.get("content")}
-                    )
+                    messages.append({"role": "user", "content": conversation.get("content")})
                 elif conversation.get("role") == "bot_response":
-                    messages.append(
-                        {"role": "assistant", "content": conversation.get("content")}
-                    )
+                    messages.append({"role": "assistant", "content": conversation.get("content")})
 
             messages.append({"role": "user", "content": rendered_form})
 
-            yield create_sse_event(
-                "status",
-                {"status": "generating", "message": "Generating AI response..."},
-            )
+            yield create_sse_event("status", {"status": "generating", "message": "Generating AI response..."})
 
             # Stream LLM response with real-time answer updates
             logger.info("LLM prompt (stream): %s", messages)
@@ -462,8 +370,8 @@ async def askAIStream(
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Cache-Control",
-        },
+            "Access-Control-Allow-Headers": "Cache-Control"
+        }
     )
 
 
@@ -488,7 +396,7 @@ async def askAI(
             config_service,
             query_info.modelKey,
             query_info.modelName,
-            query_info.chatMode,
+            query_info.chatMode
         )
 
         if llm is None:
@@ -507,18 +415,17 @@ async def askAI(
             )
             logger.debug(f"formatted_history {formatted_history}")
 
-            followup_query = await followup_query_transformation.ainvoke(
-                {"query": query_info.query, "previous_conversations": formatted_history}
-            )
+            followup_query = await followup_query_transformation.ainvoke({
+                "query": query_info.query,
+                "previous_conversations": formatted_history
+            })
             query_info.query = followup_query
 
         logger.debug(f"query_info.query {query_info.query}")
 
         decomposed_queries = []
         if not query_info.quickMode and query_info.chatMode != "quick":
-            decomposition_service = QueryDecompositionExpansionService(
-                llm, logger=logger
-            )
+            decomposition_service = QueryDecompositionExpansionService(llm, logger=logger)
             decomposition_result = await decomposition_service.transform_query(
                 query_info.query
             )
@@ -530,19 +437,20 @@ async def askAI(
         else:
             all_queries = [query.get("query") for query in decomposed_queries]
 
+
         # Execute all query processing in parallel
-        org_id = request.state.user.get("orgId")
-        user_id = request.state.user.get("userId")
-        send_user_info = request.query_params.get("sendUserInfo", True)
+        org_id = request.state.user.get('orgId')
+        user_id = request.state.user.get('userId')
+        send_user_info = request.query_params.get('sendUserInfo', True)
 
         result = await retrieval_service.search_with_filters(
-            queries=all_queries,
-            org_id=org_id,
-            user_id=user_id,
-            limit=query_info.limit,
-            filter_groups=query_info.filters,
-            arango_service=arango_service,
-        )
+                queries=all_queries,
+                org_id=org_id,
+                user_id=user_id,
+                limit=query_info.limit,
+                filter_groups=query_info.filters,
+                arango_service=arango_service,
+            )
 
         # Flatten and deduplicate results based on document ID or other unique identifier
         flattened_results = []
@@ -557,8 +465,8 @@ async def askAI(
                     "status": result.get("status", "error"),
                     "message": result.get("message", "No results found"),
                     "searchResults": [],
-                    "records": [],
-                },
+                    "records": []
+                }
             )
 
         for result in search_results:
@@ -568,11 +476,7 @@ async def askAI(
                 flattened_results.append(result)
 
         # Re-rank the combined results with the original query for better relevance
-        if (
-            len(flattened_results) > 1
-            and not query_info.quickMode
-            and query_info.chatMode != "quick"
-        ):
+        if len(flattened_results) > 1 and not query_info.quickMode and query_info.chatMode != "quick":
             final_results = await reranker_service.rerank(
                 query=query_info.query,  # Use original query for final ranking
                 documents=flattened_results,
@@ -587,9 +491,11 @@ async def askAI(
             org_info = await arango_service.get_document(
                 org_id, CollectionNames.ORGS.value
             )
-            if org_info is not None and (
-                org_info.get("accountType") == AccountType.ENTERPRISE.value
-                or org_info.get("accountType") == AccountType.BUSINESS.value
+            if (
+                org_info is not None and (
+                    org_info.get("accountType") == AccountType.ENTERPRISE.value
+                    or org_info.get("accountType") == AccountType.BUSINESS.value
+                )
             ):
                 user_data = (
                     "I am the user of the organization. "
