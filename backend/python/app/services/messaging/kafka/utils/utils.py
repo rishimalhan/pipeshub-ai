@@ -230,7 +230,7 @@ class KafkaUtils:
 
 
                 # Route sync events to appropriate connectors
-                if connector == Connectors.GOOGLE_MAIL.value:
+                if connector.lower() == Connectors.GOOGLE_MAIL.value.lower():
                     # Create the sync event service
                     gmail_sync_tasks = sync_tasks_registry.get('gmail')
                     if not gmail_sync_tasks:
@@ -246,7 +246,7 @@ class KafkaUtils:
                     logger.info(f"Processing sync event: {event_type} for GMAIL")
                     return await gmail_event_service.process_event(event_type, payload)
 
-                elif connector == Connectors.GOOGLE_DRIVE.value:
+                elif connector.lower() == Connectors.GOOGLE_DRIVE.value.lower():
                     drive_sync_tasks = sync_tasks_registry.get('drive')
                     if not drive_sync_tasks:
                         logger.error("Drive sync tasks not found in registry")
@@ -260,6 +260,22 @@ class KafkaUtils:
                     )
                     logger.info(f"Processing sync event: {event_type} for GOOGLE DRIVE")
                     return await google_drive_event_service.process_event(event_type, payload)
+
+                elif connector.lower() == Connectors.ONEDRIVE.value.lower():
+                    # onedrive_sync_tasks = sync_tasks_registry.get('onedrive')
+                    # if not onedrive_sync_tasks:
+                    #     logger.error("OneDrive sync tasks not found in registry")
+                    #     return False
+
+                    # # Handle onedrive sync events
+
+                    # onedrive_event_service = OneDriveEventService(
+                    #     logger=logger,
+                    #     arango_service=arango_service,
+                    # )
+
+                    logger.info(f"Processing sync event: {event_type} for MICROSOFT ONEDRIVE")
+                    # return await onedrive_event_service.process_event(event_type, payload)
 
                 else:
                     logger.warning(f"Unknown connector in sync message: {connector}")
