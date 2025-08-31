@@ -451,9 +451,8 @@ export function createConnectorRouter(container: Container) {
       next: NextFunction,
     ) => {
       try {
-        let service = req.query.service;
+        let service = typeof req.query.service === 'string' ? req.query.service.toLowerCase() : '';
         let response;
-        console.log('req.body', req.body);
         if (service === ConnectorId.ATLASSIAN.toLowerCase()) {
           response = await setAtlassianOauthConfig(
             req,
