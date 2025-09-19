@@ -25,8 +25,8 @@ services:
       - SECRET_KEY=${SECRET_KEY:-your_random_encryption_secret_key}
 
       # Public endpoints
-      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-https://orisonenterprise.ngrok.app}
-      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-https://orisonenterprise.ngrok.app}
+      - CONNECTOR_PUBLIC_BACKEND=${CONNECTOR_PUBLIC_BACKEND:-}
+      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL:-}
 
       # Internal service URLs
       - QUERY_BACKEND=http://localhost:8000
