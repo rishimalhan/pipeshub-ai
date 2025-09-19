@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from app.agents.client.iclient import IClient
 from app.config.configuration_service import ConfigurationService
+from app.config.providers.etcd.etcd3_encrypted_store import Etcd3EncryptedKeyValueStore
 from app.connectors.sources.google.common.connector_google_exceptions import (
     AdminAuthError,
     AdminDelegationError,
@@ -89,7 +90,8 @@ class GoogleClient(IClient):
         is_individual: Optional[bool] = False,
         version: Optional[str] = "v3",
         scopes: Optional[List[str]] = None,
-        calendar_id: Optional[str] = 'primary'
+        calendar_id: Optional[str] = 'primary',
+        key_value_store: Optional[Etcd3EncryptedKeyValueStore] = None
     ) -> 'GoogleClient':
         """
         Build GoogleClient using configuration service and arango service
@@ -111,13 +113,23 @@ class GoogleClient(IClient):
         google_token_handler = GoogleTokenHandler(
             logger=logger,
             config_service=config_service,
-            arango_service=arango_service
+            arango_service=arango_service,
+            key_value_store=key_value_store
         )
+
+        # Normalize which connector the credentials should come from
+        # drive/gmail/selectors default to 'drive' for Drive service and 'gmail' for Gmail service
+        connector_name = 'drive'
+        if service_name.lower() in ['gmail']:
+            connector_name = 'gmail'
 
         if is_individual:
             try:
-                #fetch saved credentials
-                saved_credentials = await google_token_handler.get_individual_token(org_id, user_id)
+                # Prefer config-based credentials first (written by Python OAuth flow)
+                saved_credentials = await google_token_handler.get_individual_credentials_from_config(connector_name)
+                if not saved_credentials or not saved_credentials.get(CredentialKeys.ACCESS_TOKEN.value):
+                    # Fallback to NodeJS tokens manager API if config-based creds missing
+                    saved_credentials = await google_token_handler.get_individual_token(org_id, user_id,app_name=connector_name)
 
                 google_credentials = Credentials(
                     token=saved_credentials.get(CredentialKeys.ACCESS_TOKEN.value),
@@ -128,13 +140,14 @@ class GoogleClient(IClient):
                     scopes=scopes or GOOGLE_CONNECTOR_INDIVIDUAL_SCOPES,
                 )
 
-                # Create Google Drive service using the credentials
+                # Create Google service using the credentials
                 client = build(service_name, version, credentials=google_credentials)
             except Exception as e:
                 raise GoogleAuthError("Failed to get individual token: " + str(e)) from e
         else:
             try:
-                saved_credentials = await google_token_handler.get_enterprise_token(org_id)
+                # Read service account JSON from the connector's config
+                saved_credentials = await google_token_handler.get_enterprise_credentials_from_config(connector_name)
                 if not saved_credentials:
                     raise AdminAuthError(
                         "Failed to get enterprise credentials",
@@ -169,11 +182,12 @@ class GoogleClient(IClient):
                 )
 
             try:
+                # Build the requested service for enterprise as well
                 client = build(
-                    "admin",
-                    "directory_v1",
+                    service_name,
+                    version if service_name != 'admin' else 'directory_v1',
                     credentials=google_credentials,
-                    cache_discovery=False,
+                    cache_discovery=False if service_name == 'admin' else True,
                 )
             except Exception as e:
                 raise AdminServiceError(

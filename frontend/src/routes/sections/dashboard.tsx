@@ -8,6 +8,7 @@ import { useAdmin } from 'src/context/AdminContext';
 import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
+import { ConnectorProvider } from 'src/sections/accountdetails/connectors/context';
 
 import { AuthGuard } from 'src/auth/guard';
 import { useAuthContext } from 'src/auth/hooks';
@@ -33,19 +34,15 @@ const ConnectorSettings = lazy(
   () => import('src/pages/dashboard/account/connectors/connector-settings')
 );
 
-const GoogleWorkspaceBusinessPage = lazy(
-  () => import('src/pages/dashboard/account/connectors/googleWorkspace-business')
+// Generic connector management (parameterized by name)
+const ConnectorManagementPage = lazy(
+  () => import('src/pages/dashboard/account/connectors/[connectorName]')
 );
 
-const GoogleWorkspaceIndividualPage = lazy(
-  () => import('src/pages/dashboard/account/connectors/googleWorkspace-individual')
-);
-const GoogleWorkspaceOAuthCallback = lazy(
-  () => import('src/pages/dashboard/account/connectors/googleWorkspace-oauth-callback')
-);
-const AtlassianPage = lazy(() => import('src/pages/dashboard/account/connectors/atlassian'));
-const OneDrivePage = lazy(() => import('src/pages/dashboard/account/connectors/onedrive'));
-const SharepointPage = lazy(() => import('src/pages/dashboard/account/connectors/sharepoint'));
+  // OAuth callback page for connectors
+  const ConnectorOAuthCallback = lazy(
+    () => import('src/pages/dashboard/account/connectors/oauth-callback')
+  );
 
 const SamlSsoConfigPage = lazy(() => import('src/pages/dashboard/account/saml-sso-config'));
 
@@ -174,11 +171,13 @@ const ProtectedRoute = ({ component: Component }: { component: React.ComponentTy
 
 // Layout with outlet for nested routes
 const layoutContent = (
+  <ConnectorProvider>
   <DashboardLayout>
     <Suspense fallback={<LoadingScreen />}>
       <Outlet />
     </Suspense>
   </DashboardLayout>
+  </ConnectorProvider>
 );
 
 export const dashboardRoutes = [
@@ -195,6 +194,13 @@ export const dashboardRoutes = [
       { path: 'agents/:agentKey/flow', element: <AgentBuilderPage key="flow-agent-edit" /> },
       { path: 'agents/:agentKey/conversations/:conversationId', element: <AgentChatPage key="agent-conversation" /> },
       { path: 'record/:recordId', element: <RecordDetails /> },
+      { path: 'connectors', element: <Navigate to="/account/individual/settings/connector" replace /> },
+      
+      // OAuth callback route for connectors
+      {
+        path: 'connectors/oauth/callback/:connectorName',
+        element: <ConnectorOAuthCallback />,
+      },
       {
         path: 'account',
         children: [
@@ -326,25 +332,21 @@ export const dashboardRoutes = [
                         index: true,
                       },
                       {
-                        path: 'googleWorkspace',
+                        path: 'oauth/callback/:connectorName',
                         element: CONFIG.auth.skip ? (
-                          <GoogleWorkspaceBusinessPage />
+                          <ConnectorOAuthCallback />
                         ) : (
-                          <BusinessAdminOnlyRoute component={GoogleWorkspaceBusinessPage} />
+                          <BusinessAdminOnlyRoute component={ConnectorOAuthCallback} />
                         ),
                       },
                       {
-                        path: 'atlassian',
-                        element: <BusinessAdminOnlyRoute component={AtlassianPage} />,
-                      },
-                      {
-                        path: 'onedrive',
-                        element: <BusinessAdminOnlyRoute component={OneDrivePage} />,
-                      },
-                      {
-                        path: 'sharepointOnline',
-                        element: <BusinessAdminOnlyRoute component={SharepointPage} />,
-                      },
+                        path: ':connectorName',
+                        element: CONFIG.auth.skip ? (
+                          <ConnectorManagementPage />
+                        ) : (
+                          <BusinessAdminOnlyRoute component={ConnectorManagementPage} />
+                        ),
+                      }
                     ],
                   },
                   {
@@ -440,29 +442,18 @@ export const dashboardRoutes = [
                         index: true,
                       },
                       {
-                        path: 'googleWorkspace',
+                        path: 'oauth/callback/:connectorName',
                         element: CONFIG.auth.skip ? (
-                          <GoogleWorkspaceIndividualPage />
+                          <ConnectorOAuthCallback />
                         ) : (
-                          <IndividualOnlyRoute component={GoogleWorkspaceIndividualPage} />
+                          <IndividualOnlyRoute component={ConnectorOAuthCallback} />
                         ),
                       },
+                      // Parameterized connector management page
                       {
-                        path: 'googleWorkspace/oauth/callback',
-                        element: <GoogleWorkspaceOAuthCallback />,
-                      },
-                      {
-                        path: 'atlassian',
-                        element: <IndividualOnlyRoute component={AtlassianPage} />,
-                      },
-                      {
-                        path: 'onedrive',
-                        element: <IndividualOnlyRoute component={OneDrivePage} />,
-                      },
-                      {
-                        path: 'sharepointOnline',
-                        element: <IndividualOnlyRoute component={SharepointPage} />,
-                      },
+                        path: ':connectorName',
+                        element: <IndividualOnlyRoute component={ConnectorManagementPage} />,
+                      }
                     ],
                   },
                   {

@@ -1,8 +1,10 @@
+import asyncio
 import io
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
+from langchain.chat_models.base import BaseChatModel
 from openpyxl import load_workbook
 from openpyxl.cell.cell import MergedCell
 from openpyxl.utils import get_column_letter
@@ -12,6 +14,16 @@ from tenacity import (
     wait_exponential,
 )
 
+from app.models.blocks import (
+    Block,
+    BlockContainerIndex,
+    BlockGroup,
+    BlocksContainer,
+    BlockType,
+    DataFormat,
+    GroupType,
+    TableMetadata,
+)
 from app.modules.parsers.excel.prompt_template import (
     prompt,
     row_text_prompt,
@@ -36,7 +48,7 @@ class ExcelParser:
         self.min_wait = 1  # seconds
         self.max_wait = 10  # seconds
 
-    def parse(self, file_binary: bytes) -> Dict[str, Any]:
+    async def parse(self, file_binary: bytes, llm: BaseChatModel) -> BlocksContainer:
         """
         Parse Excel file and extract all content including sheets, cells, formulas, etc.
 
@@ -60,75 +72,19 @@ class ExcelParser:
                 )
             else:
                 self.workbook = load_workbook(self.file_path, data_only=True)
-            sheets_data = []
-            total_rows = 0
-            total_cells = 0
-            all_text = []
 
-            # Process each sheet
-            for sheet_name in self.workbook.sheetnames:
-                sheet = self.workbook[sheet_name]
-                sheet_data = self._process_sheet(sheet)
-
-                sheets_data.append(
-                    {
-                        "name": sheet_name,
-                        "data": sheet_data["data"],
-                        "headers": sheet_data["headers"],
-                        "row_count": sheet.max_row,
-                        "column_count": sheet.max_column,
-                        "merged_cells": [
-                            str(merged_range)
-                            for merged_range in sheet.merged_cells.ranges
-                        ],
-                    }
-                )
-
-                total_rows += sheet.max_row
-                total_cells += sum(
-                    1 for row in sheet_data["data"] for cell in row if cell["value"]
-                )
-
-                all_text.extend(
-                    [
-                        str(cell["value"])
-                        for row in sheet_data["data"]
-                        for cell in row
-                        if cell["value"] is not None
-                    ]
-                )
-
-            # Prepare metadata
-            metadata = {
-                "creator": self.workbook.properties.creator,
-                "created": (
-                    self.workbook.properties.created.isoformat()
-                    if self.workbook.properties.created
-                    else None
-                ),
-                "modified": (
-                    self.workbook.properties.modified.isoformat()
-                    if self.workbook.properties.modified
-                    else None
-                ),
-                "last_modified_by": self.workbook.properties.lastModifiedBy,
-                "sheet_count": len(self.workbook.sheetnames),
-            }
-
-            return {
-                "sheets": sheets_data,
-                "metadata": metadata,
-                "text_content": "\n".join(all_text),
-                "sheet_names": self.workbook.sheetnames,
-                "total_rows": total_rows,
-                "total_cells": total_cells,
-            }
+            return await self.get_blocks_from_workbook(llm)
 
         except Exception:
             raise
         finally:
             if self.workbook:
                 self.workbook.close()
+
+    def _json_default(self, obj) -> str:
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return str(obj)
 
     def _process_sheet(self, sheet) -> Dict[str, List[List[Dict[str, Any]]]]:
         """Process individual sheet and extract cell data"""
@@ -400,13 +356,13 @@ class ExcelParser:
             # Prepare context for LLM with all tables
             tables_context = []
             for idx, table in enumerate(tables, 1):
-                table_data = [[cell["value"] for cell in row] for row in table["data"]]
+                table_data = [[cell["value"] for cell in row] for row in table["data"][:10]]
                 tables_context.append(f"Table {idx}:\n{table_data}")
 
             # Process each table with LLM
             processed_tables = []
             for idx, table in enumerate(tables, 1):
-                table_data = [[cell["value"] for cell in row] for row in table["data"]]
+                table_data = [[cell["value"] for cell in row] for row in table["data"][:10]]
 
                 # Use prompt from prompt_template.py
                 formatted_prompt = prompt.format(
@@ -551,8 +507,6 @@ class ExcelParser:
     ) -> Dict[str, Any]:
         """Process a sheet and generate all summaries and row texts"""
         self.llm = llm
-        if not self.workbook:
-            self.parse()
 
         if sheet_name not in self.workbook.sheetnames:
             self.logger.warning(f"Sheet '{sheet_name}' not found in workbook")
@@ -567,13 +521,35 @@ class ExcelParser:
             # Get table summary
             table_summary = await self.get_table_summary(table)
 
-            # Process rows in batches of 20
+            # Process rows in batches of 50 in parallel
             processed_rows = []
-            batch_size = 20
+            batch_size = 50
 
+            # Create batches
+            batches = []
             for i in range(0, len(table["data"]), batch_size):
                 batch = table["data"][i : i + batch_size]
-                row_texts = await self.get_rows_text(batch, table_summary)
+                batches.append((i, batch))  # Store start index and batch data
+
+            # Limit parallel processing to at most 10 concurrent batches
+            semaphore = asyncio.Semaphore(10)
+
+            async def limited_get_rows_text(batch) -> List[str]:
+                async with semaphore:
+                    return await self.get_rows_text(batch, table_summary)
+
+            # Create throttled tasks for all batches
+            batch_tasks = []
+            for start_idx, batch in batches:
+                task = limited_get_rows_text(batch)
+                batch_tasks.append((start_idx, batch, task))
+
+            # Wait for all batches to complete (max 10 running concurrently)
+            task_results = await asyncio.gather(*[task for _, _, task in batch_tasks])
+
+            # Combine results with their metadata and process
+            for i, (start_idx, batch, _) in enumerate(batch_tasks):
+                row_texts = task_results[i]
 
                 # Add processed rows to results
                 for row, row_text in zip(batch, row_texts):
@@ -600,3 +576,141 @@ class ExcelParser:
             )
 
         return {"sheet_name": sheet_name, "tables": processed_tables}
+
+    async def get_blocks_from_workbook(self, llm) -> BlocksContainer:
+        """Build a BlocksContainer with SHEET and TABLE groups and TABLE_ROW blocks.
+
+        Mirrors the CSV blocks structure, but nests tables under sheet groups.
+        """
+        blocks: List[Block] = []
+        block_groups: List[BlockGroup] = []
+
+        # Iterate sheets and build hierarchy
+        for sheet_idx, sheet_name in enumerate(self.workbook.sheetnames, 1):
+            sheet_result = await self.process_sheet_with_summaries(llm, sheet_name)
+            if sheet_result is None:
+                continue
+
+            # Create SHEET group
+            sheet_group_index = len(block_groups)
+            sheet_group_children: List[BlockContainerIndex] = []
+            sheet_group = BlockGroup(
+                index=sheet_group_index,
+                name=sheet_result["sheet_name"],
+                type=GroupType.SHEET,
+                parent_index=None,
+                description=None,
+                table_metadata=None,
+                data={
+                    "sheet_name": sheet_result["sheet_name"],
+                    "table_count": len(sheet_result["tables"]),
+                },
+                format=DataFormat.JSON,
+            )
+            block_groups.append(sheet_group)
+
+            # Add TABLE groups under this sheet
+            for table in sheet_result["tables"]:
+                table_group_index = len(block_groups)
+
+                headers = table.get("headers", [])
+                rows = table.get("rows", [])
+
+                table_group_children: List[BlockContainerIndex] = []
+                table_markdown = self.to_markdown(headers, rows)
+                table_group = BlockGroup(
+                    index=table_group_index,
+                    name=None,
+                    type=GroupType.TABLE,
+                    parent_index=sheet_group_index,
+                    description=None,
+                    source_group_id=None,
+                    table_metadata=TableMetadata(
+                        num_of_rows=len(rows),
+                        num_of_cols=len(headers) if headers else (len(rows[0]["raw_data"]) if rows else 0),
+                    ),
+                    data={
+                        "table_summary": table.get("summary", ""),
+                        "column_headers": headers,
+                        "table_markdown": table_markdown,
+                        "sheet_number": sheet_idx,
+                        "sheet_name": sheet_name,
+                    },
+                    format=DataFormat.JSON,
+                )
+                block_groups.append(table_group)
+                sheet_group_children.append(BlockContainerIndex(block_group_index=table_group_index))
+
+                # Create TABLE_ROW blocks under this table
+                for i, row in enumerate(rows):
+                    block_index = len(blocks)
+                    row_data = row.get("raw_data", {})
+                    blocks.append(
+                        Block(
+                            index=block_index,
+                            type=BlockType.TABLE_ROW,
+                            format=DataFormat.JSON,
+                            data={
+                                "row_natural_language_text": row.get("natural_language_text", ""),
+                                "row_number": int(row.get("row_num") or (i + 1)),
+                                "row": json.dumps(row_data, default=self._json_default),
+                                "sheet_number": sheet_idx,
+                                "sheet_name": sheet_name,
+                            },
+                            parent_index=table_group_index,
+                        )
+                    )
+                    table_group_children.append(BlockContainerIndex(block_index=block_index))
+
+                # attach table children
+                block_groups[table_group_index].children = table_group_children
+
+            # attach sheet children (its tables)
+            block_groups[sheet_group_index].children = sheet_group_children
+
+        return BlocksContainer(blocks=blocks, block_groups=block_groups)
+
+    def to_markdown(self, headers: List[str], rows: List[Dict[str, Any]]) -> str:
+        """
+        Convert CSV data to markdown table format.
+        Args:
+            data: List of dictionaries from read_stream() method
+        Returns:
+            String containing markdown formatted table
+        """
+        if not headers and not rows:
+            return ""
+
+        # Get headers from the first row
+        headers = list(headers)
+
+        # Start building the markdown table
+        markdown_lines = []
+
+        # Add header row
+        header_row = "| " + " | ".join(str(header) for header in headers) + " |"
+        markdown_lines.append(header_row)
+
+        # Add separator row
+        separator_row = "|" + "|".join(" --- " for _ in headers) + "|"
+        markdown_lines.append(separator_row)
+        data = []
+        for row in rows:
+            data.append(row.get("raw_data", {}))
+        # Add data rows
+        for row in data:
+            # Handle None values and convert to string, escape pipe characters
+            formatted_values = []
+            for header in headers:
+                value = row.get(header, "")
+                if value is None:
+                    value = ""
+                # Escape pipe characters and convert to string
+                value_str = str(value).replace("|", "\\|")
+                formatted_values.append(value_str)
+
+            data_row = "| " + " | ".join(formatted_values) + " |"
+            markdown_lines.append(data_row)
+
+        return "\n".join(markdown_lines)
+

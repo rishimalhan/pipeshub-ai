@@ -360,12 +360,12 @@ class EntityEventService(BaseEventService):
             self.logger.error(f"❌ Error deleting user: {str(e)}")
             return False
 
-    async def __handle_google_app_account_services(self, org_id: str, account_type: str) -> bool:
+    async def __handle_google_app_account_services(self, org_id: str, account_type: str, app_names: list[str]) -> bool:
         """Handle Google account services"""
         if account_type == AccountType.ENTERPRISE.value or account_type == AccountType.BUSINESS.value:
-            await initialize_enterprise_google_account_services_fn(org_id, self.app_container)
+            await initialize_enterprise_google_account_services_fn(org_id, self.app_container, app_names)
         elif account_type == AccountType.INDIVIDUAL.value:
-            await initialize_individual_google_account_services_fn(org_id, self.app_container)
+            await initialize_individual_google_account_services_fn(org_id, self.app_container, app_names)
         else:
             self.logger.error("Account Type not valid")
             return False
@@ -377,7 +377,6 @@ class EntityEventService(BaseEventService):
             self.logger.info(f"📥 Processing app enabled event: {payload}")
             org_id = payload["orgId"]
             app_group = payload["appGroup"]
-            app_group_id = payload["appGroupId"]
             apps = payload["apps"]
             sync_action = payload.get("syncAction", "none")
 
@@ -389,42 +388,6 @@ class EntityEventService(BaseEventService):
                 self.logger.error(f"Organization not found: {org_id}")
                 return False
 
-            # Create app entities
-            app_docs = []
-            for app_name in apps:
-
-                app_data = {
-                    "_key": f"{org_id}_{app_name}",
-                    "name": app_name,
-                    "type": app_name,
-                    "appGroup": app_group,
-                    "appGroupId": app_group_id,
-                    "isActive": True,
-                    "createdAtTimestamp": get_epoch_timestamp_in_ms(),
-                    "updatedAtTimestamp": get_epoch_timestamp_in_ms(),
-                }
-                app_docs.append(app_data)
-
-            # Batch create apps
-            await self.arango_service.batch_upsert_nodes(
-                app_docs, CollectionNames.APPS.value
-            )
-
-            # Create edges between org and apps
-            org_app_edges = []
-            for app in app_docs:
-                edge_data = {
-                    "_from": f"{CollectionNames.ORGS.value}/{org_id}",
-                    "_to": f"{CollectionNames.APPS.value}/{app['_key']}",
-                    "createdAtTimestamp": get_epoch_timestamp_in_ms(),
-                }
-                org_app_edges.append(edge_data)
-
-            await self.arango_service.batch_create_edges(
-                org_app_edges,
-                CollectionNames.ORG_APP_RELATION.value,
-            )
-
             # Check if Google apps (Drive, Gmail) are enabled
             enabled_apps = set(apps)
 
@@ -434,7 +397,7 @@ class EntityEventService(BaseEventService):
                 if self.app_container and "google" in app_group.lower():
                     accountType = org["accountType"]
                     # Use the existing app container to initialize services
-                    await self.__handle_google_app_account_services(org_id, accountType)
+                    await self.__handle_google_app_account_services(org_id, accountType, enabled_apps)
                     self.logger.info(
                         f"✅ Successfully initialized services for account type: {org['accountType']}"
                     )
@@ -509,19 +472,19 @@ class EntityEventService(BaseEventService):
 
                     # Then create edges and start sync if needed
                     for user in active_users:
-                        for app in app_docs:
+                        for app in enabled_apps:
                             if sync_action == "immediate":
                                 # Start sync for individual user
-                                if app["name"] in [Connectors.GOOGLE_CALENDAR.value]:
+                                if app in [Connectors.GOOGLE_CALENDAR.value]:
                                     self.logger.info("Skipping start")
                                     continue
 
                                 await self.__handle_sync_event(
-                                    event_type=f'{app["name"].lower()}.start',
+                                    event_type=f'{app.lower()}.start',
                                     value={
                                         "orgId": org_id,
                                         "email": user["email"],
-                                        "connector":app["name"]
+                                        "connector":app
                                     },
                                 )
                                 # TODO: Remove this sleep

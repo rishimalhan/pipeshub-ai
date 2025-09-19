@@ -148,6 +148,7 @@ async def stream_llm_response(
         try:
             parsed = json.loads(escape_ctl(full_json_buf))
             final_answer = parsed.get("answer", answer_buf)
+
             normalized, c = normalize_citations_and_chunks(final_answer, final_results)
             yield {
                 "event": "complete",

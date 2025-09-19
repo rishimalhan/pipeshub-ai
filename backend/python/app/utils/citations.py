@@ -1,7 +1,9 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
+
+from app.models.blocks import GroupType
 
 
 @dataclass
@@ -59,49 +61,79 @@ def fix_json_string(json_str) -> str:
 
 
 
-def normalize_citations_and_chunks(answer_text: str, final_results: List[Dict[str, Any]]) -> tuple[str, List[Dict[str, Any]]]:
+def normalize_citations_and_chunks(answer_text: str, final_results: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
     Normalize citation numbers in answer text to be sequential (1,2,3...)
     and create corresponding citation chunks with correct mapping
     """
     # Extract all citation numbers from the answer text
-    citation_pattern = r'\[(\d+)\]'
+    citation_pattern = r'\[R(\d+)-(\d+)\]'
     matches = re.findall(citation_pattern, answer_text)
 
     if not matches:
         return answer_text, []
 
-    # Get unique citation numbers in order of appearance
+
     unique_citations = []
     seen = set()
-    for match in matches:
-        citation_num = int(match)
-        if citation_num not in seen:
-            unique_citations.append(citation_num)
-            seen.add(citation_num)
 
-    # Create mapping from old citation numbers to new sequential numbers
+    for match in matches:
+        citation_key = f"R{match[0]}-{match[1]}"  # Convert tuple to string format
+        if citation_key not in seen:
+            unique_citations.append(citation_key)
+            seen.add(citation_key)
+
     citation_mapping = {}
     new_citations = []
+    record_number = 0
+    block_number_to_index = {}
+    flattened_final_results = []
+    seen = set()
+    for i,doc in enumerate(final_results):
+        virtual_record_id = doc.get("virtual_record_id")
+        if virtual_record_id not in seen:
+            record_number += 1
+            seen.add(virtual_record_id)
+        block_index = doc.get("block_index")
+        block_type = doc.get("block_type")
+        if block_type == GroupType.TABLE.value:
+            _,child_results = doc.get("content")
+            if child_results:
+                for child in child_results:
+                    child_block_index = child.get("block_index")
+                    flattened_final_results.append(child)
+                    block_number_to_index[f"R{record_number}-{child_block_index}"] = len(flattened_final_results) - 1
+            else:
+                flattened_final_results.append(doc)
+                block_number_to_index[f"R{record_number}-{block_index}"] = len(flattened_final_results) - 1
+        else:
+            flattened_final_results.append(doc)
+            block_number_to_index[f"R{record_number}-{block_index}"] = len(flattened_final_results) - 1
 
-    for i, old_citation_num in enumerate(unique_citations):
+    # Create mapping from old citation keys to new sequential numbers
+    for i, old_citation_key in enumerate(unique_citations):
         new_citation_num = i + 1
-        citation_mapping[old_citation_num] = new_citation_num
+        citation_mapping[old_citation_key] = new_citation_num
 
         # Get the corresponding chunk from final_results
-        chunk_index = old_citation_num - 1  # Convert to 0-based index
-        if 0 <= chunk_index < len(final_results):
-            doc = final_results[chunk_index]
-            new_citations.append({
-                "content": doc.get("content", ""),
-                "chunkIndex": new_citation_num,  # Use new sequential number
-                "metadata": doc.get("metadata", {}),
-                "citationType": "vectordb|document",
-            })
+        if old_citation_key in block_number_to_index:
+            chunk_index = block_number_to_index[old_citation_key]
+
+            if 0 <= chunk_index < len(flattened_final_results):
+                doc = flattened_final_results[chunk_index]
+                new_citations.append({
+                    "content": doc.get("content", ""),
+                    "chunkIndex": new_citation_num,  # Use new sequential number
+                    "metadata": doc.get("metadata", {}),
+                    "citationType": "vectordb|document",
+                })
 
     # Replace citation numbers in answer text
-    normalized_answer = re.sub(citation_pattern, lambda m: f"[{citation_mapping[int(m.group(1))]}]", answer_text)
+    def replace_citation(match) -> str:
+        old_key = f"R{match.group(1)}-{match.group(2)}"
+        return f"[{citation_mapping[old_key]}]" if old_key in citation_mapping else ""
 
+    normalized_answer = re.sub(citation_pattern, replace_citation, answer_text)
     return normalized_answer, new_citations
 
 
