@@ -51,7 +51,6 @@ import { registerStorageSwagger } from './modules/storage/docs/swagger';
 import { CrawlingManagerContainer } from './modules/crawling_manager/container/cm_container';
 import createCrawlingManagerRouter from './modules/crawling_manager/routes/cm_routes';
 import { MigrationService } from './modules/configuration_manager/services/migration.service';
-import { createStreamRouter } from './modules/knowledge_base/routes/kb.routes';
 import { createTeamsRouter } from './modules/user_management/routes/teams.routes';
 
 const loggerConfig = {
@@ -338,12 +337,6 @@ export class Application {
     this.app.use(
       '/api/v1/connectors',
       createConnectorRouter(this.tokenManagerContainer),
-    );
-
-    // streaming route
-    this.app.use(
-      '/api/v1/stream',
-      createStreamRouter(this.knowledgeBaseContainer),
     );
 
     // knowledge base routes
