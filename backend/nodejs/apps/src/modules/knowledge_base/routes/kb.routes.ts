@@ -56,7 +56,6 @@ import {
   uploadRecordsToFolderSchema,
   listKnowledgeBasesSchema,
   reindexRecordSchema,
-  getConnectorStatsSchema,
 } from '../validators/validators';
 import { FileProcessorFactory } from '../../../libs/middlewares/file_processor/fp.factory';
 import { FileProcessingType } from '../../../libs/middlewares/file_processor/fp.constant';
@@ -66,7 +65,6 @@ import { KeyValueStoreService } from '../../../libs/services/keyValueStore.servi
 import { RecordsEventProducer } from '../services/records_events.service';
 import { AppConfig } from '../../tokens_manager/config/config';
 import { SyncEventProducer } from '../services/sync_events.service';
-import { userAdminCheck } from '../../user_management/middlewares/userAdminCheck';
 
 export function createKnowledgeBaseRouter(container: Container): Router {
   const router = Router();
@@ -172,11 +170,9 @@ export function createKnowledgeBaseRouter(container: Container): Router {
 
   // connector stats
   router.get(
-    '/stats/:connector',
+    '/stats/connector',
     authMiddleware.authenticate,
     metricsMiddleware(container),
-    userAdminCheck,
-    ValidationMiddleware.validate(getConnectorStatsSchema),
     getConnectorStats(appConfig),
   );
 
@@ -185,7 +181,6 @@ export function createKnowledgeBaseRouter(container: Container): Router {
     '/reindex-all/connector',
     authMiddleware.authenticate,
     metricsMiddleware(container),
-    userAdminCheck,
     ValidationMiddleware.validate(reindexAllRecordSchema),
     reindexAllRecords(recordRelationService),
   );
@@ -195,7 +190,6 @@ export function createKnowledgeBaseRouter(container: Container): Router {
     '/resync/connector',
     authMiddleware.authenticate,
     metricsMiddleware(container),
-    userAdminCheck,
     ValidationMiddleware.validate(resyncConnectorSchema),
     resyncConnectorRecords(recordRelationService),
   );
@@ -364,22 +358,6 @@ export function createKnowledgeBaseRouter(container: Container): Router {
     metricsMiddleware(container),
     ValidationMiddleware.validate(deletePermissionsSchema),
     removeKBPermission(appConfig),
-  );
-
-  return router;
-}
-
-export function createStreamRouter(container: Container): Router {
-  const router = Router();
-  const appConfig = container.get<AppConfig>('AppConfig');
-  const authMiddleware = container.get<AuthMiddleware>('AuthMiddleware');
-
-  router.get(
-    '/record/:recordId',
-    authMiddleware.authenticate,
-    metricsMiddleware(container),
-    ValidationMiddleware.validate(getRecordByIdSchema),
-    getRecordBuffer(appConfig.connectorBackend),
   );
 
   return router;
