@@ -15,6 +15,9 @@ from app.connectors.sources.google.admin.admin_webhook_handler import (
 from app.connectors.sources.google.admin.google_admin_service import GoogleAdminService
 from app.connectors.sources.google.common.arango_service import ArangoService
 from app.connectors.sources.google.common.google_token_handler import GoogleTokenHandler
+from app.connectors.sources.google.common.scopes import (
+    GOOGLE_CONNECTOR_ENTERPRISE_SCOPES,
+)
 from app.connectors.sources.google.gmail.gmail_change_handler import GmailChangeHandler
 from app.connectors.sources.google.gmail.gmail_sync_service import (
     GmailSyncEnterpriseService,
@@ -610,7 +613,7 @@ async def cache_google_workspace_service_credentials(org_id, arango_service, log
                         continue
 
                     # Fetch and cache credentials
-                    SCOPES = await google_token_handler.get_account_scopes(app_name=app_name)
+                    SCOPES = GOOGLE_CONNECTOR_ENTERPRISE_SCOPES
                     credentials_json = await google_token_handler.get_enterprise_token(org_id,app_name=app_name)
                     credentials = service_account.Credentials.from_service_account_info(
                         credentials_json, scopes=SCOPES
